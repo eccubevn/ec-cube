@@ -24,6 +24,8 @@
 
 namespace Eccube\Tests\Web;
 
+use Eccube\Common\Constant;
+
 class ShoppingControllerTest extends AbstractWebTestCase
 {
 
@@ -505,5 +507,77 @@ class ShoppingControllerTest extends AbstractWebTestCase
             )
         );
         return $crawler;
+    }
+
+    public function testShippingShippingMulti()
+    {
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
+        $BaseInfo->setOptionMultipleShipping(Constant::ENABLED);
+
+        $this->logIn();
+        $client = $this->client;
+        // カート画面
+        $this->scenarioCartIn($client);
+        // 確認画面
+        $crawler = $this->scenarioConfirm($client);
+        // お届け先指定画面
+        $shipping_url = $crawler->filter('a.btn-shipping')->attr('href');
+        $this->scenarioComplete($client, $shipping_url);
+
+        // お届け先一覧
+        $crawler = $client->request(
+            'GET',
+            $this->app->url('shopping_shipping_multiple')
+        );
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
+
+        $this->expected = '新規お届け先を追加する';
+        $this->actual = trim($crawler->filter('#list_box__add_button')->text());
+        $this->verify();
+    }
+
+    public function testShippingMultiShippingEdit()
+    {
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
+        $BaseInfo->setOptionMultipleShipping(Constant::ENABLED);
+
+        $this->logIn();
+        $client = $this->client;
+        // カート画面
+        $this->scenarioCartIn($client);
+        // 確認画面
+        $crawler = $this->scenarioConfirm($client);
+        // お届け先指定画面
+        $shipping_url = $crawler->filter('a.btn-shipping')->attr('href');
+        $this->scenarioComplete($client, $shipping_url);
+
+        $formData = $this->createShippingFormData();
+        $formData['tel'] = array(
+            'tel01' => 222,
+            'tel02' => 222,
+            'tel03' => 222,
+        );
+        $formData['fax'] = array(
+            'fax01' => 111,
+            'fax02' => 111,
+            'fax03' => 111,
+        );
+
+        // お届け先一覧
+        $client->request(
+            'POST',
+            $this->app->url('shopping_shipping_edit', array('id' => 0)),
+            array('shopping_shipping' => $formData)
+        );
+
+        $this->assertTrue($client->getResponse()->isRedirect($this->app->url('shopping_shipping_multiple')));
+        $crawler = $client->request(
+            'GET',
+            $this->app->url('shopping_shipping_multiple')
+        );
+        $this->expected = $formData['name']['name01'];
+        $this->actual = $crawler->filter('#item0 select')->first()->filter('option')->last()->html();
+        $this->assertContains($this->expected, $this->actual);
     }
 }

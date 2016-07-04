@@ -84,6 +84,7 @@ $(function() {
 
 {% block main %}
     <h1 class="page-heading">お届け先の複数指定</h1>
+
     <div id="multiple_wrap" class="container-fluid">
         <form id="shipping-multiple-form" method="post" action="{{ url('shopping_shipping_multiple') }}">
             {{ form_widget(form._token) }}
@@ -137,7 +138,15 @@ $(function() {
                                 <!--/item_box-->
                             </div>
                         </div><!--/cart_item-->
-
+                        <p id="list_box__add_button">
+                        {% if is_granted('ROLE_USER') %}
+                            {% if Customer.CustomerAddresses|length < app.config.deliv_addr_max %}
+                                <a href="{{ url('shopping_shipping_edit', {'id': 0}) }}" class="btn btn-default btn-sm">新規お届け先を追加する</a>
+                            {% else %}
+                                <span id="list_box__deliv_addr_max_message" class="text-danger">お届け先登録上限の{{ app.config.deliv_addr_max }}件に達しています。お届け先を入力したい場合は、削除か変更を行ってください</span>
+                            {% endif %}
+                        {% endif %}
+                        </p>
                         <div id="item{{ idx }}">
                             {% for shipping in form.shipping_multiple[idx].shipping %}
                                 <div id="item{{ idx }}-{{ loop.index0 }}" class="shipping_item item{{ idx }} form-inline" style="margin-bottom: 5px;">
@@ -155,6 +164,7 @@ $(function() {
                                 </div>
                             {% endfor %}
                         </div>
+
                         <p id="multiple_list__add_button">
                             <button id="button__add" type="button" class="btn btn-default btn-sm add" data-idx="{{ idx }}">お届け先追加</button>
                         </p>
