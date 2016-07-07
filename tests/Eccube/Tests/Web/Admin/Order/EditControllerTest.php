@@ -131,6 +131,61 @@ class EditControllerTest extends AbstractAdminWebTestCase
                         'year' => $delivery_date->format('Y'),
                         'month' => $delivery_date->format('n'),
                         'day' => $delivery_date->format('j')
+                    ),
+                    'ShipmentItems' => array(
+                        0 => array(
+                            'quantity' => 2,
+                            'Product' => $Product->getId(),
+                            'ProductClass' => $ProductClasses[0]->getId(),
+                            'price' => $ProductClasses[0]->getPrice02(),
+                            "itemidx" => ""
+                        )
+                    )
+                ),
+                array(
+                    'name' => array(
+                        'name01' => $faker->lastName,
+                        'name02' => $faker->firstName,
+                    ),
+                    'kana' => array(
+                        'kana01' => $faker->lastKanaName ,
+                        'kana02' => $faker->firstKanaName,
+                    ),
+                    'company_name' => $faker->company,
+                    'zip' => array(
+                        'zip01' => $faker->postcode1(),
+                        'zip02' => $faker->postcode2(),
+                    ),
+                    'address' => array(
+                        'pref' => '5',
+                        'addr01' => $faker->city,
+                        'addr02' => $faker->streetAddress,
+                    ),
+                    'tel' => array(
+                        'tel01' => $tel[0],
+                        'tel02' => $tel[1],
+                        'tel03' => $tel[2],
+                    ),
+                    'fax' => array(
+                        'fax01' => $tel[0],
+                        'fax02' => $tel[1],
+                        'fax03' => $tel[2],
+                    ),
+                    'Delivery' => 1,
+                    'DeliveryTime' => 1,
+                    'shipping_delivery_date' => array(
+                        'year' => $delivery_date->format('Y'),
+                        'month' => $delivery_date->format('n'),
+                        'day' => $delivery_date->format('j')
+                    ),
+                    'ShipmentItems' => array(
+                        1 => array(
+                            'quantity' => 1,
+                            'Product' => $Product->getId(),
+                            'ProductClass' => $ProductClasses[0]->getId(),
+                            'price' => $ProductClasses[0]->getPrice02(),
+                            "itemidx" => ""
+                        )
                     )
                 )
             )
@@ -172,7 +227,7 @@ class EditControllerTest extends AbstractAdminWebTestCase
         $Customer = $this->createCustomer();
         $Order = $this->createOrder($Customer);
         $formData = $this->createFormData($Customer, $this->Product);
-        $this->client->request(
+        $crawler = $this->client->request(
             'POST',
             $this->app->url('admin_order_edit', array('id' => $Order->getId())),
             array(
@@ -186,6 +241,11 @@ class EditControllerTest extends AbstractAdminWebTestCase
         $this->expected = $formData['name']['name01'];
         $this->actual = $EditedOrder->getName01();
         $this->verify();
+
+        $this->expected = $EditedOrder["OrderDetails"][0]["quantity"];
+        $this->actual = 3;
+        $this->verify();
+
     }
 
     public function testSearchCustomer()
