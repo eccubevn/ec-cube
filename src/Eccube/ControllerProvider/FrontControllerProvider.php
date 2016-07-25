@@ -46,6 +46,9 @@ class FrontControllerProvider implements ControllerProviderInterface
         $c->match('/', '\Eccube\Controller\TopController::index')->bind('top'); // deprecated since 3.0.0, to be removed in 3.1
         $c->match('/', '\Eccube\Controller\TopController::index')->bind('index'); // deprecated since 3.0.0, to be removed in 3.1
 
+        //error render
+        $c->match('/error', '\Eccube\Controller\ErrorController::index')->bind('errorpage');
+
         // cart
         $c->match('/cart', '\Eccube\Controller\CartController::index')->bind('cart');
         $c->post('/cart/add', '\Eccube\Controller\CartController::add')->bind('cart_add');

@@ -31,7 +31,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 class Application extends ApplicationTrait
 {
     protected static $instance;
@@ -207,10 +207,12 @@ class Application extends ApplicationTrait
                     break;
             }
 
-            return $app->render('error.twig', array(
+            $response = new RedirectResponse($this->url('errorpage', array(
                 'error_title' => $title,
                 'error_message' => $message,
-            ));
+            )));
+            $response->send();
+            die();
         });
 
         // init mailer
