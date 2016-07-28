@@ -187,6 +187,7 @@ class Application extends ApplicationTrait
         $this->register(new \Eccube\ServiceProvider\ValidatorServiceProvider());
 
         $app = $this;
+
         $this->error(function(\Exception $e, $code) use ($app) {
             if ($app['debug']) {
                 return;
@@ -200,16 +201,7 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
-                    if ($route) {
-                        $DeviceType = $app['eccube.repository.master.device_type']
-                            ->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-                        $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
-                        if ($PageLayout) {
-                            $this['session']->getFlashBag()->set('errorTitle', $title);
-                            $this['session']->getFlashBag()->set('errorMessage', $message);
-                            return $app->render('error.twig');
-                        }
-                    }
+
                     break;
                 default:
                     $title = 'システムエラーが発生しました。';
@@ -218,11 +210,20 @@ class Application extends ApplicationTrait
             }
             $this['session']->getFlashBag()->set('errorTitle', $title);
             $this['session']->getFlashBag()->set('errorMessage', $message);
-            $response = new RedirectResponse($this->url('errorpage'));
-            $response->send();
-            die();
+            if ($route) {
+                $DeviceType = $app['eccube.repository.master.device_type']
+                    ->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
+                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
+                if ($PageLayout) {
+                    return $app->render('error.twig');
+                }
+            } else {
+                $response = new RedirectResponse($this->url('errorpage'));
+                $response->send();
+                die();
+            }
         });
-
+        $this['session']->getFlashBag()->set('errorTitle', null);
         // init mailer
         $this->initMailer();
 
