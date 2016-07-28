@@ -223,7 +223,7 @@ class Application extends ApplicationTrait
                 die();
             }
         });
-        $this['session']->getFlashBag()->set('errorTitle', null);
+
         // init mailer
         $this->initMailer();
 
