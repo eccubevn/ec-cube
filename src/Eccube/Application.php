@@ -191,7 +191,7 @@ class Application extends ApplicationTrait
             if ($app['debug']) {
                 return;
             }
-
+            $route = $app['request']->attributes->get('_route');
             switch ($code) {
                 case 403:
                     $title = 'アクセスできません。';
@@ -200,17 +200,25 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
+                    if ($route) {
+                        $DeviceType = $app['eccube.repository.master.device_type']
+                            ->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
+                        $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
+                        if ($PageLayout) {
+                            $this['session']->getFlashBag()->set('errorTitle', $title);
+                            $this['session']->getFlashBag()->set('errorMessage', $message);
+                            return $app->render('error.twig');
+                        }
+                    }
                     break;
                 default:
                     $title = 'システムエラーが発生しました。';
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';
                     break;
             }
-
-            $response = new RedirectResponse($this->url('errorpage', array(
-                'error_title' => $title,
-                'error_message' => $message,
-            )));
+            $this['session']->getFlashBag()->set('errorTitle', $title);
+            $this['session']->getFlashBag()->set('errorMessage', $message);
+            $response = new RedirectResponse($this->url('errorpage'));
             $response->send();
             die();
         });

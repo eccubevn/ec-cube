@@ -38,8 +38,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                             <use xlink:href="#cb-warning"/>
                                         </svg>
                                     </div>
-                                    <h1>{{ app.request.query.get("error_title") }}</h1>
-                                    <p>{{ app.request.query.get("error_message") }}</p>
+                                    {% for alert in app.session.flashbag.get('errorTitle') %}
+                                        <h1>{{ alert }}</h1>
+                                    {% endfor %}
+                                    {% for alert in app.session.flashbag.get('errorMessage') %}
+                                        <p>{{ alert }}</p>
+                                    {% endfor %}
                                 </div>
                             </div>
                             <div id="default_error__footer" class="row">

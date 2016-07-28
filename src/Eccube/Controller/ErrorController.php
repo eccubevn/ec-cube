@@ -25,11 +25,10 @@
 namespace Eccube\Controller;
 
 use Eccube\Application;
-
+use Symfony\Component\HttpFoundation\Request;
 class ErrorController
 {
-
-    public function index(Application $app)
+    public function index(Application $app, Request $request)
     {
         return $app->render('error.twig');
     }
