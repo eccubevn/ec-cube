@@ -188,6 +188,9 @@ class Application extends ApplicationTrait
 
         $app = $this;
 
+
+        $this['session']->set('errorTitle', null);
+        $this['session']->set('errorMessage', null);
         $this->error(function(\Exception $e, $code) use ($app) {
             if ($app['debug']) {
                 return;
@@ -208,8 +211,8 @@ class Application extends ApplicationTrait
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';
                     break;
             }
-            $this['session']->getFlashBag()->set('errorTitle', $title);
-            $this['session']->getFlashBag()->set('errorMessage', $message);
+            $this['session']->set('errorTitle', $title);
+            $this['session']->set('errorMessage', $message);
             if ($route) {
                 $DeviceType = $app['eccube.repository.master.device_type']
                     ->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);

@@ -38,12 +38,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                             <use xlink:href="#cb-warning"/>
                                         </svg>
                                     </div>
-                                    {% for alert in app.session.flashbag.get('errorTitle') %}
-                                        <h1>{{ alert }}</h1>
-                                    {% endfor %}
-                                    {% for alert in app.session.flashbag.get('errorMessage') %}
-                                        <p>{{ alert }}</p>
-                                    {% endfor %}
+                                    {% if  app.session.get('errorTitle') %}
+                                        <h1>{{ app.session.get('errorTitle') }}</h1>
+                                        <p>{{ app.session.get('errorMessage')}}</p>
+                                    {% else %}
+                                        <h1>ページがみつかりません。</h1>
+                                        <p>URLに間違いがないかご確認ください。</p>
+                                    {% endif %}
+
                                 </div>
                             </div>
                             <div id="default_error__footer" class="row">
