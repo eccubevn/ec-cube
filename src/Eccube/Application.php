@@ -187,10 +187,6 @@ class Application extends ApplicationTrait
         $this->register(new \Eccube\ServiceProvider\ValidatorServiceProvider());
 
         $app = $this;
-
-
-        $this['session']->set('errorTitle', null);
-        $this['session']->set('errorMessage', null);
         $this->error(function(\Exception $e, $code) use ($app) {
             if ($app['debug']) {
                 return;
@@ -204,27 +200,25 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
-
                     break;
                 default:
                     $title = 'システムエラーが発生しました。';
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';
                     break;
             }
-            $this['session']->set('errorTitle', $title);
-            $this['session']->set('errorMessage', $message);
+            $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
             if ($route) {
-                $DeviceType = $app['eccube.repository.master.device_type']
-                    ->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
                 $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
-                if ($PageLayout) {
-                    return $app->render('error.twig');
-                }
             } else {
-                $response = new RedirectResponse($this->url('errorpage'));
-                $response->send();
-                die();
+                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
             }
+            $this['twig']->addGlobal('PageLayout', $PageLayout);
+            $this['twig']->addGlobal('title', $PageLayout->getName());
+            return $this->render('error.twig', array(
+                'error_title' => $title,
+                'error_message' => $message
+            ));
+
         });
 
         // init mailer
