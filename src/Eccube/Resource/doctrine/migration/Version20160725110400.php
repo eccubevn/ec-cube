@@ -24,7 +24,7 @@ class Version20160725110400 extends AbstractMigration
         $PageLayout->setDeviceType($DeviceType);
         $PageLayout->setName( 'エラーページ');
         $PageLayout->setUrl('errorpage');
-        $PageLayout->setFileName('error');
+        $PageLayout->setFileName('error404');
         $PageLayout->setEditFlg(2);
         $PageLayout->setMetaRobots('noindex');
         $PageLayout->setCreateDate(new \DateTime());

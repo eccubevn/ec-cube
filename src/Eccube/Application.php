@@ -191,7 +191,6 @@ class Application extends ApplicationTrait
             if ($app['debug']) {
                 return;
             }
-            $route = $app['request']->attributes->get('_route');
             switch ($code) {
                 case 403:
                     $title = 'アクセスできません。';
@@ -206,14 +205,24 @@ class Application extends ApplicationTrait
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';
                     break;
             }
-            $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-            if ($route) {
-                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
-            } else {
-                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
+
+            $error404 = __DIR__.'/Resource/template/default/error404.twig';
+            if ($code == 404 && file_exists($error404)) {
+                $route = $app['request']->attributes->get('_route');
+                $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
+                if ($route) {
+                    $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
+                } else {
+                    $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
+                }
+                $this['twig']->addGlobal('PageLayout', $PageLayout);
+                $this['twig']->addGlobal('title', $PageLayout->getName());
+                return $this->render('error404.twig', array(
+                    'error_title' => $title,
+                    'error_message' => $message
+                ));
             }
-            $this['twig']->addGlobal('PageLayout', $PageLayout);
-            $this['twig']->addGlobal('title', $PageLayout->getName());
+
             return $this->render('error.twig', array(
                 'error_title' => $title,
                 'error_message' => $message
