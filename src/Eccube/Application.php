@@ -205,6 +205,11 @@ class Application extends ApplicationTrait
                             $this['twig']->addGlobal('PageLayout', $PageLayout);
                             $this['twig']->addGlobal('title', $PageLayout->getName());
                         }
+                        if (is_null($app['twig']->getGlobals()['BaseInfo'])) {
+                            $BaseInfo = $app['eccube.repository.base_info']->get();
+                            $this['twig']->addGlobal('BaseInfo', $BaseInfo);
+                        }
+
                         return $this->render('error404.twig', array(
                             'error_title' => $title,
                             'error_message' => $message
