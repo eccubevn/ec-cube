@@ -199,28 +199,27 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
+                    $error404 = __DIR__.'/Resource/template/default/error404.twig';
+                    if (file_exists($error404)) {
+                        $route = $app['request']->attributes->get('_route');
+                        $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
+                        if ($route) {
+                            $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
+                        } else {
+                            $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
+                        }
+                        $this['twig']->addGlobal('PageLayout', $PageLayout);
+                        $this['twig']->addGlobal('title', $PageLayout->getName());
+                        return $this->render('error404.twig', array(
+                            'error_title' => $title,
+                            'error_message' => $message
+                        ));
+                    }
                     break;
                 default:
                     $title = 'システムエラーが発生しました。';
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';
                     break;
-            }
-
-            $error404 = __DIR__.'/Resource/template/default/error404.twig';
-            if ($code == 404 && file_exists($error404)) {
-                $route = $app['request']->attributes->get('_route');
-                $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-                if ($route) {
-                    $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
-                } else {
-                    $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
-                }
-                $this['twig']->addGlobal('PageLayout', $PageLayout);
-                $this['twig']->addGlobal('title', $PageLayout->getName());
-                return $this->render('error404.twig', array(
-                    'error_title' => $title,
-                    'error_message' => $message
-                ));
             }
 
             return $this->render('error.twig', array(
