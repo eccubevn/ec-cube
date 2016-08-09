@@ -31,7 +31,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 class Application extends ApplicationTrait
 {
     protected static $instance;
@@ -199,8 +198,8 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
-                    $error404 = __DIR__.'/Resource/template/default/error404.twig';
-                    if (file_exists($error404)) {
+                    $error404 = $this['twig']->getLoader()->exists('error404.twig');
+                    if ($error404) {
                         $route = $app['request']->attributes->get('_route');
                         $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
                         if ($route) {
