@@ -198,17 +198,13 @@ class Application extends ApplicationTrait
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
-                    $error404 = $this['twig']->getLoader()->exists('error404.twig');
-                    if ($error404) {
-                        $route = $app['request']->attributes->get('_route');
+                    if ($this['twig']->getLoader()->exists('error404.twig')) {
                         $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-                        if ($route) {
-                            $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, $route);
-                        } else {
+                        if (is_null($app['twig']->getGlobals()['PageLayout'])) {
                             $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
+                            $this['twig']->addGlobal('PageLayout', $PageLayout);
+                            $this['twig']->addGlobal('title', $PageLayout->getName());
                         }
-                        $this['twig']->addGlobal('PageLayout', $PageLayout);
-                        $this['twig']->addGlobal('title', $PageLayout->getName());
                         return $this->render('error404.twig', array(
                             'error_title' => $title,
                             'error_message' => $message
