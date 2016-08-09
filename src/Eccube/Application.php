@@ -199,8 +199,8 @@ class Application extends ApplicationTrait
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
                     if ($this['twig']->getLoader()->exists('error404.twig')) {
-                        $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
                         if (is_null($app['twig']->getGlobals()['PageLayout'])) {
+                            $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
                             $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
                             $this['twig']->addGlobal('PageLayout', $PageLayout);
                             $this['twig']->addGlobal('title', $PageLayout->getName());
