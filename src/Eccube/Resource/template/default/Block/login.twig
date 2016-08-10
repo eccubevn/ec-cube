@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #}
 {% if app.security.token is null %}
     {# tokenが取得できない場合は判断できないので何もレンダリングしない #}
-{% ifelse is_granted('ROLE_USER') %}
+{% elseif is_granted('ROLE_USER') %}
     <div id="member" class="member drawer_block pc">
         <ul class="member_link">
             <li>
