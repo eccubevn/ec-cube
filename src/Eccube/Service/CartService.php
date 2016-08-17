@@ -234,7 +234,9 @@ class CartService
         $event = new EventArgs(
             array(
                 'CartItems' => $this->cart->getCartItems(),
-                'ProductClass' => $ProductClass
+                'ProductClass' => $ProductClass,
+                'qauntity' => $quantity,
+
             ),
             null
         );
@@ -364,7 +366,8 @@ class CartService
         $event = new EventArgs(
             array(
                 'CartItems' => $this->cart->getCartItems(),
-                'ProductClass' => $ProductClass
+                'ProductClass' => $ProductClass,
+                'quantity' => $quantity
             ),
             null
         );

@@ -34,12 +34,12 @@ class ShoppingControllerWithNonmemberTest extends AbstractWebTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->initializeMailCatcher();
+        //$this->initializeMailCatcher();
     }
 
     public function tearDown()
     {
-        $this->cleanUpMailCatcherMessages();
+        //$this->cleanUpMailCatcherMessages();
         parent::tearDown();
     }
 
@@ -53,6 +53,8 @@ class ShoppingControllerWithNonmemberTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_ADD_INITIALIZE,
+            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
+            EccubeEvents::SERVICE_CART_ADD_PRODUCT,
             EccubeEvents::FRONT_CART_ADD_COMPLETE,
         );
 
@@ -89,6 +91,8 @@ class ShoppingControllerWithNonmemberTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_ADD_INITIALIZE,
+            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
+            EccubeEvents::SERVICE_CART_ADD_PRODUCT,
             EccubeEvents::FRONT_CART_ADD_COMPLETE,
         );
 
@@ -116,6 +120,9 @@ class ShoppingControllerWithNonmemberTest extends AbstractWebTestCase
             array(
                 EccubeEvents::FRONT_SHOPPING_CONFIRM_INITIALIZE,
                 EccubeEvents::SERVICE_SHOPPING_ORDER_STATUS,
+                EccubeEvents::SERVICE_SHOPPING_ORDER_UPDATE,
+                EccubeEvents::SERVICE_SHOPPING_STOCK_UPDATE,
+                EccubeEvents::SERVICE_CART_CLEAR,
                 EccubeEvents::FRONT_SHOPPING_CONFIRM_PROCESSING,
                 EccubeEvents::MAIL_ORDER,
                 EccubeEvents::FRONT_SHOPPING_CONFIRM_COMPLETE,

@@ -1284,6 +1284,7 @@ class ShoppingService
      */
     public function notifyProcessPurchase(Order $Order)
     {
+
         $event = new EventArgs(
             array(
                 'Order' => $Order,
