@@ -22,9 +22,9 @@ class Version20160725110400 extends AbstractMigration
         $DeviceType = $em->getRepository('\Eccube\Entity\Master\DeviceType')->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
         $PageLayout = new PageLayout();
         $PageLayout->setDeviceType($DeviceType);
-        $PageLayout->setName( 'エラーページ');
-        $PageLayout->setUrl('errorpage');
-        $PageLayout->setFileName('error404');
+        $PageLayout->setName('404エラーページ');
+        $PageLayout->setUrl('404');
+        $PageLayout->setFileName('404');
         $PageLayout->setEditFlg(2);
         $PageLayout->setMetaRobots('noindex');
         $PageLayout->setCreateDate(new \DateTime());
@@ -43,5 +43,3 @@ class Version20160725110400 extends AbstractMigration
 
     }
 }
-
-# migrationファイルが一つもないとこけるのでダミーファイル

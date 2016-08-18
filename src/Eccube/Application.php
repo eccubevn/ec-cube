@@ -196,25 +196,29 @@ class Application extends ApplicationTrait
                     $message = 'お探しのページはアクセスができない状況にあるか、移動もしくは削除された可能性があります。';
                     break;
                 case 404:
+                    // 404ページを表示する
+                    // 問題が発生した場合は、他エラーと同じ汎用エラーページを表示する
+                    try {
+                        if ($this['twig']->getLoader()->exists('404.twig')) {
+                            if (is_null($app['twig']->getGlobals()['PageLayout'])) {
+                                $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
+                                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, '404');
+                                $this['twig']->addGlobal('PageLayout', $PageLayout);
+                                $this['twig']->addGlobal('title', $PageLayout->getName());
+                            }
+                            if (is_null($app['twig']->getGlobals()['BaseInfo'])) {
+                                $BaseInfo = $app['eccube.repository.base_info']->get();
+                                $this['twig']->addGlobal('BaseInfo', $BaseInfo);
+                            }
+                            return $this->render('404.twig');
+                        }
+                    } catch (\Exception $e) {
+                        // 問題があった場合は汎用のエラーページを表示するので、例外は無視する
+                        $this['monolog']->error('Failure rendering "404 page".', array('message' => $e->getMessage()));
+                    }
+                    
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
-                    if ($this['twig']->getLoader()->exists('error404.twig')) {
-                        if (is_null($app['twig']->getGlobals()['PageLayout'])) {
-                            $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-                            $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
-                            $this['twig']->addGlobal('PageLayout', $PageLayout);
-                            $this['twig']->addGlobal('title', $PageLayout->getName());
-                        }
-                        if (is_null($app['twig']->getGlobals()['BaseInfo'])) {
-                            $BaseInfo = $app['eccube.repository.base_info']->get();
-                            $this['twig']->addGlobal('BaseInfo', $BaseInfo);
-                        }
-
-                        return $this->render('error404.twig', array(
-                            'error_title' => $title,
-                            'error_message' => $message
-                        ));
-                    }
                     break;
                 default:
                     $title = 'システムエラーが発生しました。';
