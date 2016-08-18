@@ -788,6 +788,7 @@ class ShoppingService
         $this->setDeliveryFreeAmount($Order);
         // 配送料無料条件(合計数量)
         $this->setDeliveryFreeQuantity($Order);
+
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -843,6 +844,7 @@ class ShoppingService
 
             }
         }
+
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -874,6 +876,7 @@ class ShoppingService
 
         $user->setBuyTimes($user->getBuyTimes() + 1);
         $user->setBuyTotal($user->getBuyTotal() + $Order->getTotal());
+
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -1165,6 +1168,7 @@ class ShoppingService
     {
 
         $Order->setDiscount($Order->getDiscount() + $discount);
+
         $event = new EventArgs(
             array(
                 'Order' => $Order,

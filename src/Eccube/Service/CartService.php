@@ -223,6 +223,7 @@ class CartService
     {
         $quantity += $this->getProductQuantity($productClassId);
         $this->setProductQuantity($productClassId, $quantity);
+
         $event = new EventArgs(
             array(
                 'productClassId' => $productClassId,
@@ -497,6 +498,7 @@ class CartService
 
             $this->getCart()->setPayments($payments);
         }
+
         $event = new EventArgs(
             array(
                 'productClassId' => $productClassId
