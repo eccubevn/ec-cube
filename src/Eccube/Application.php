@@ -202,7 +202,7 @@ class Application extends ApplicationTrait
                         if ($this['twig']->getLoader()->exists('404.twig')) {
                             if (is_null($app['twig']->getGlobals()['PageLayout'])) {
                                 $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
-                                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, 'errorpage');
+                                $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, '404');
                                 $this['twig']->addGlobal('PageLayout', $PageLayout);
                                 $this['twig']->addGlobal('title', $PageLayout->getName());
                             }
