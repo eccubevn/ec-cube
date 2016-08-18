@@ -25,7 +25,7 @@
 namespace Eccube\Tests\Web;
 use Eccube\Application;
 use Symfony\Component\HttpFoundation\Request;
-class ErrorControllerTest extends AbstractWebTestCase
+class ErrorPageTest extends AbstractWebTestCase
 {
 
     public function testRoutingIndex()

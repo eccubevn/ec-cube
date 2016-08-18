@@ -211,6 +211,7 @@ class Application extends ApplicationTrait
                                 $BaseInfo = $app['eccube.repository.base_info']->get();
                                 $app['twig']->addGlobal('BaseInfo', $BaseInfo);
                             }
+
                             return $app->render('404.twig');
                         }
                     } catch (\Exception $e) {
@@ -229,7 +230,7 @@ class Application extends ApplicationTrait
 
             return $app->render('error.twig', array(
                 'error_title' => $title,
-                'error_message' => $message
+                'error_message' => $message,
             ));
         });
 
