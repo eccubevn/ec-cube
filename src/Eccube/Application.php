@@ -199,18 +199,19 @@ class Application extends ApplicationTrait
                     // 404ページを表示する
                     // 問題が発生した場合は、他エラーと同じ汎用エラーページを表示する
                     try {
-                        if ($this['twig']->getLoader()->exists('404.twig')) {
-                            if (is_null($app['twig']->getGlobals()['PageLayout'])) {
+                        if ($app['twig']->getLoader()->exists('404.twig')) {
+                            $globals = $app['twig']->getGlobals();
+                            if (is_null($globals['PageLayout'])) {
                                 $DeviceType = $app['eccube.repository.master.device_type']->find(\Eccube\Entity\Master\DeviceType::DEVICE_TYPE_PC);
                                 $PageLayout = $app['eccube.repository.page_layout']->getByUrl($DeviceType, '404');
-                                $this['twig']->addGlobal('PageLayout', $PageLayout);
-                                $this['twig']->addGlobal('title', $PageLayout->getName());
+                                $app['twig']->addGlobal('PageLayout', $PageLayout);
+                                $app['twig']->addGlobal('title', $PageLayout->getName());
                             }
-                            if (is_null($app['twig']->getGlobals()['BaseInfo'])) {
+                            if (is_null($globals['BaseInfo'])) {
                                 $BaseInfo = $app['eccube.repository.base_info']->get();
-                                $this['twig']->addGlobal('BaseInfo', $BaseInfo);
+                                $app['twig']->addGlobal('BaseInfo', $BaseInfo);
                             }
-                            return $this->render('404.twig');
+                            return $app->render('404.twig');
                         }
                     } catch (\Exception $e) {
                         // 問題があった場合は汎用のエラーページを表示するので、例外は無視する
@@ -226,11 +227,10 @@ class Application extends ApplicationTrait
                     break;
             }
 
-            return $this->render('error.twig', array(
+            return $app->render('error.twig', array(
                 'error_title' => $title,
                 'error_message' => $message
             ));
-
         });
 
         // init mailer

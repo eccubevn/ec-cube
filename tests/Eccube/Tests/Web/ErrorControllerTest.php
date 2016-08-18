@@ -23,17 +23,18 @@
 
 
 namespace Eccube\Tests\Web;
-
+use Eccube\Application;
+use Symfony\Component\HttpFoundation\Request;
 class ErrorControllerTest extends AbstractWebTestCase
 {
 
     public function testRoutingIndex()
     {
-        $crawler = $this->client->request('GET', $this->app['url_generator']->generate('errorpage'));
-        $this->assertTrue($this->client->getResponse()->isSuccessful());
-        $expected = 'copyright (c)';
-        $actual = $crawler->filter('p.copyright')->text();
-        $this->assertContains($expected, $actual);
+        $app = new Application();
+        $app['debug'] = false;
+        $request = Request::create($this->app->url('product_detail', array('id' => '100')));
+        $response = $app->handle($request);
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
 }
