@@ -92,7 +92,6 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_UP_INITIALIZE,
-            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
             EccubeEvents::FRONT_CART_UP_EXCEPTION,
         );
 
@@ -121,7 +120,7 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_DOWN_INITIALIZE,
-            EccubeEvents::FRONT_CART_DOWN_COMPLETE,
+            EccubeEvents::FRONT_CART_DOWN_EXCEPTION,
             // 本来はExceptionが発生するはずだが、存在しない商品規格IDを投げても何もしていない.コントローラ側を修正する必要がある.
             // EccubeEvents::FRONT_CART_DOWN_EXCEPTION,
         );

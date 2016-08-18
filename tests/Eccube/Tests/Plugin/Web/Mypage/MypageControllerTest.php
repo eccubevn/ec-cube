@@ -89,6 +89,8 @@ class MypageControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_MYPAGE_MYPAGE_ORDER_INITIALIZE,
+            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
+            EccubeEvents::SERVICE_CART_ADD_PRODUCT,
             EccubeEvents::FRONT_MYPAGE_MYPAGE_ORDER_COMPLETE,
         );
         $this->verifyOutputString($hookpoins);

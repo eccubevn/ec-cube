@@ -223,20 +223,11 @@ class CartService
     {
         $quantity += $this->getProductQuantity($productClassId);
         $this->setProductQuantity($productClassId, $quantity);
-        //get product class as event parameter
-        $ProductClass = $this->entityManager
-            ->getRepository('Eccube\Entity\ProductClass')
-            ->find($productClassId);
-        if (!$ProductClass) {
-            throw new CartException('cart.product.delete');
-        }
         //add new hook point.
         $event = new EventArgs(
             array(
-                'CartItems' => $this->cart->getCartItems(),
-                'ProductClass' => $ProductClass,
-                'qauntity' => $quantity,
-
+                'productClassId' => $productClassId,
+                'quantity' => $quantity,
             ),
             null
         );
@@ -365,8 +356,7 @@ class CartService
         //add new hook point.
         $event = new EventArgs(
             array(
-                'CartItems' => $this->cart->getCartItems(),
-                'ProductClass' => $ProductClass,
+                'productClassId' => $ProductClass->getId(),
                 'quantity' => $quantity
             ),
             null
@@ -518,8 +508,7 @@ class CartService
         //add new hook point.
         $event = new EventArgs(
             array(
-                'CartItems' => $this->cart->getCartItems(),
-                'ProductClass' => $ProductClass
+                'productClassId' => $productClassId
             ),
             null
         );

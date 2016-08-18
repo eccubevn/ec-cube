@@ -34,12 +34,12 @@ class ShoppingControllerWithNonmemberTest extends AbstractWebTestCase
     public function setUp()
     {
         parent::setUp();
-        //$this->initializeMailCatcher();
+        $this->initializeMailCatcher();
     }
 
     public function tearDown()
     {
-        //$this->cleanUpMailCatcherMessages();
+        $this->cleanUpMailCatcherMessages();
         parent::tearDown();
     }
 
