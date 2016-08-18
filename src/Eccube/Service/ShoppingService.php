@@ -788,7 +788,6 @@ class ShoppingService
         $this->setDeliveryFreeAmount($Order);
         // 配送料無料条件(合計数量)
         $this->setDeliveryFreeQuantity($Order);
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -844,7 +843,6 @@ class ShoppingService
 
             }
         }
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -876,7 +874,6 @@ class ShoppingService
 
         $user->setBuyTimes($user->getBuyTimes() + 1);
         $user->setBuyTotal($user->getBuyTotal() + $Order->getTotal());
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'Order' => $Order,
@@ -1168,7 +1165,6 @@ class ShoppingService
     {
 
         $Order->setDiscount($Order->getDiscount() + $discount);
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'Order' => $Order,

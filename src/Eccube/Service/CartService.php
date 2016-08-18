@@ -197,7 +197,6 @@ class CartService
             ->setLock(false)
             ->clearCartItems();
 
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'CartItems' => $CartItems,
@@ -205,6 +204,7 @@ class CartService
             null
         );
         $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_CLEAR, $event);
+
         return $this;
     }
 
@@ -223,7 +223,6 @@ class CartService
     {
         $quantity += $this->getProductQuantity($productClassId);
         $this->setProductQuantity($productClassId, $quantity);
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'productClassId' => $productClassId,
@@ -232,6 +231,7 @@ class CartService
             null
         );
         $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_ADD_PRODUCT, $event);
+
         return $this;
     }
 
@@ -353,7 +353,6 @@ class CartService
             ->setQuantity($quantity);
 
         $this->cart->setCartItem($CartItem);
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'productClassId' => $ProductClass->getId(),
@@ -498,14 +497,6 @@ class CartService
 
             $this->getCart()->setPayments($payments);
         }
-        //get product class as event parameter
-        $ProductClass = $this->entityManager
-            ->getRepository('Eccube\Entity\ProductClass')
-            ->find($productClassId);
-        if (!$ProductClass) {
-            throw new CartException('cart.product.delete');
-        }
-        //add new hook point.
         $event = new EventArgs(
             array(
                 'productClassId' => $productClassId
@@ -513,6 +504,7 @@ class CartService
             null
         );
         $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_REMOVE_PRODUCT, $event);
+
         return $this;
     }
 
