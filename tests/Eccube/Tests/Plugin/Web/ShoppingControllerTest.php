@@ -134,7 +134,6 @@ class ShoppingControllerTest extends AbstractWebTestCase
             array(
                 EccubeEvents::FRONT_SHOPPING_CONFIRM_INITIALIZE,
                 EccubeEvents::SERVICE_SHOPPING_ORDER_STATUS,
-                EccubeEvents::SERVICE_SHOPPING_ORDER_UPDATE,
                 EccubeEvents::SERVICE_SHOPPING_STOCK_UPDATE,
                 EccubeEvents::SERVICE_SHOPPING_CUSTOMER_UPDATE,
                 EccubeEvents::SERVICE_CART_CLEAR,
@@ -601,7 +600,6 @@ class ShoppingControllerTest extends AbstractWebTestCase
             array(
                 EccubeEvents::FRONT_SHOPPING_CONFIRM_INITIALIZE,
                 EccubeEvents::SERVICE_SHOPPING_ORDER_STATUS,
-                EccubeEvents::SERVICE_SHOPPING_ORDER_UPDATE,
                 EccubeEvents::SERVICE_SHOPPING_STOCK_UPDATE,
                 EccubeEvents::SERVICE_SHOPPING_CUSTOMER_UPDATE,
                 EccubeEvents::SERVICE_CART_CLEAR,
