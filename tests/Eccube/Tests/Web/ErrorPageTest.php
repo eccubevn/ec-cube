@@ -27,7 +27,7 @@ namespace Eccube\Tests\Web;
 class ErrorPageTest extends AbstractWebTestCase
 {
 
-    public function testRoutingIndex()
+    public function testRouting404ErrorPage()
     {
         $this->app['debug'] = false;
         $crawler = $this->client->request('GET', $this->app->url('product_detail', array('id' => '100')));
