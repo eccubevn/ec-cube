@@ -31,8 +31,13 @@ class ErrorPageTest extends AbstractWebTestCase
     {
         $this->app['debug'] = false;
         $crawler = $this->client->request('GET', $this->app->url('product_detail', array('id' => '100')));
+        //page layout check
         $this->expected = 'copyright (c)';
         $this->actual = $crawler->filter('p.copyright')->text();
+        $this->assertContains($this->expected, $this->actual);
+        //error check
+        $this->expected = 'URLに間違いがないかご確認ください。';
+        $this->actual = $crawler->filter('#default_error__message p')->text();
         $this->assertContains($this->expected, $this->actual);
     }
 
@@ -42,8 +47,13 @@ class ErrorPageTest extends AbstractWebTestCase
         $this->app['twig']->addGlobal('PageLayout', null);
         $this->app['twig']->addGlobal('BaseInfo', null);
         $crawler = $this->client->request('GET', 'hogehoge');
+        //page layout check
         $this->expected = 'copyright (c)';
         $this->actual = $crawler->filter('p.copyright')->text();
+        $this->assertContains($this->expected, $this->actual);
+        //error check
+        $this->expected = 'URLに間違いがないかご確認ください。';
+        $this->actual = $crawler->filter('#default_error__message p')->text();
         $this->assertContains($this->expected, $this->actual);
     }
 
