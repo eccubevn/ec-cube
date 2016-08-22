@@ -27,10 +27,21 @@ namespace Eccube\Tests\Web;
 class ErrorPageTest extends AbstractWebTestCase
 {
 
-    public function testRouting404ErrorPage()
+    public function testExistRoute404()
     {
         $this->app['debug'] = false;
         $crawler = $this->client->request('GET', $this->app->url('product_detail', array('id' => '100')));
+        $this->expected = 'copyright (c)';
+        $this->actual = $crawler->filter('p.copyright')->text();
+        $this->assertContains($this->expected, $this->actual);
+    }
+
+    public function testNonExistRoute404()
+    {
+        $this->app['debug'] = false;
+        $this->app['twig']->addGlobal('PageLayout', null);
+        $this->app['twig']->addGlobal('BaseInfo', null);
+        $crawler = $this->client->request('GET', 'hogehoge');
         $this->expected = 'copyright (c)';
         $this->actual = $crawler->filter('p.copyright')->text();
         $this->assertContains($this->expected, $this->actual);
