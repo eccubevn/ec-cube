@@ -197,6 +197,11 @@ class Shipping extends \Eccube\Entity\AbstractEntity
     private $DeliveryFee;
 
     /**
+     * @var \Eccube\Entity\ProductClass
+     */
+    private $ProductClass;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -1028,5 +1033,26 @@ class Shipping extends \Eccube\Entity\AbstractEntity
         }
 
         return $this->DeliveryFee;
+    }
+
+    /**
+     * Product class of shipment item (temp)
+     * @return \Eccube\Entity\ProductClass
+     */
+    public function getProductClass()
+    {
+        return $this->ProductClass;
+    }
+
+    /**
+     * Product class of shipment item (temp)
+     * @param \Eccube\Entity\ProductClass $ProductClass
+     * @return $this
+     */
+    public function setProductClass(\Eccube\Entity\ProductClass $ProductClass)
+    {
+        $this->ProductClass = $ProductClass;
+
+        return $this;
     }
 }

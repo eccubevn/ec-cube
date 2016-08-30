@@ -4,6 +4,7 @@ Login memory: 次回から自動的にログインする
 Bad credentials.: ログインできませんでした。<br>入力内容に誤りがないかご確認ください。
 Invalid CSRF token.: もう一度ログイン処理をしてください。
 Your session has timed out, or you have disabled cookies.: もう一度ログイン処理をしてください。
+The uploaded file was too large. Please try to upload a smaller file.: ファイルサイズが大きすぎます。
 
 Name: お名前
 Name01: 姓
@@ -189,6 +190,9 @@ admin.plugin.download.pem.complete: 証明書ファイルを設定しました�
 admin.plugin.download.pem.error: 証明書ファイルの設定ができませんでした。
 
 admin.preview.register.complete: プレビューを登録しました
+
+admin.change_password.save.complete: パスワードを変更しました。
+admin.change_password.save.error: パスワードを変更できませんでした。
 
 admin_title: 'EC-CUBE 管理機能' # 未使用
 normal_price_title: 通常価格    # 未使用
