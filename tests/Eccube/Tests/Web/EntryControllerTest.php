@@ -221,17 +221,20 @@ class EntryControllerTest extends AbstractWebTestCase
         $this->verify();
     }
 
-    public function testActivateWithNotFound()
+    /**
+     * @link https://github.com/EC-CUBE/ec-cube/issues/739
+     */
+    public function testActivateWithGoneHttpException()
     {
-        // debugはONの時に404ページ表示しない例外になります。
-        if($this->app['debug'] == true){
-            $this->setExpectedException('\Symfony\Component\HttpKernel\Exception\NotFoundHttpException');
+        // debugはONの時に410ページ表示しない例外になります。
+        if ($this->app['debug'] == true) {
+            $this->setExpectedException('\Symfony\Component\HttpKernel\Exception\GoneHttpException');
         }
         $client = $this->createClient();
-        $crawler = $client->request('GET', $this->app['url_generator']->generate('entry_activate', array('secret_key' => 'aaaaa')));
-        // debugはOFFの時に404ページが表示します。
-        if($this->app['debug'] == false){
-            $this->expected = 404;
+        $client->request('GET', $this->app['url_generator']->generate('entry_activate', array('secret_key' => 'aaaaa')));
+        // debugはOFFの時に410ページが表示します。
+        if ($this->app['debug'] == false) {
+            $this->expected = 410;
             $this->actual = $client->getResponse()->getStatusCode();
             $this->verify();
         }

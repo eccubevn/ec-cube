@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Yaml\Yaml;
 
@@ -150,14 +151,24 @@ class Application extends ApplicationTrait
             }
 
             switch ($code) {
+                case 400:
+                case 401:
                 case 403:
+                case 405:
+                case 406:
+                case 410:
                     $title = 'アクセスできません。';
                     $message = 'お探しのページはアクセスができない状況にあるか、移動もしくは削除された可能性があります。';
+                    if ($e instanceof HttpExceptionInterface && $e->getMessage()) {
+                        $message = $e->getMessage();
+                    }
                     break;
+
                 case 404:
                     $title = 'ページがみつかりません。';
                     $message = 'URLに間違いがないかご確認ください。';
                     break;
+
                 default:
                     $title = 'システムエラーが発生しました。';
                     $message = '大変お手数ですが、サイト管理者までご連絡ください。';

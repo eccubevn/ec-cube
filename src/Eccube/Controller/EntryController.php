@@ -184,7 +184,7 @@ class EntryController extends AbstractController
                 $Customer = $app['eccube.repository.customer']
                     ->getNonActiveCustomerBySecretKey($secret_key);
             } catch (\Exception $e) {
-                throw new HttpException\NotFoundHttpException('※ 既に会員登録が完了しているか、無効なURLです。');
+                throw new HttpException\GoneHttpException('※ 既に会員登録が完了しているか、無効なURLです。');
             }
 
             $CustomerStatus = $app['eccube.repository.customer_status']->find(CustomerStatus::ACTIVE);
@@ -213,7 +213,7 @@ class EntryController extends AbstractController
 
             return $app->render('Entry/activate.twig');
         } else {
-            throw new HttpException\AccessDeniedHttpException('不正なアクセスです。');
+            throw new HttpException\AccessDeniedHttpException('※ 不正なアクセスです。');
         }
     }
 }

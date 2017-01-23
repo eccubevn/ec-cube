@@ -116,21 +116,21 @@ class ForgotControllerTest extends AbstractWebTestCase
         }
     }
 
-    public function testResetWithNotFound()
+    /**
+     * @link https://github.com/EC-CUBE/ec-cube/issues/739
+     */
+    public function testResetWithGoneHttpException()
     {
-        // debugはONの時に404ページ表示しない例外になります。
-        if($this->app['debug'] == true){
-            $this->setExpectedException('\Symfony\Component\HttpKernel\Exception\NotFoundHttpException');
+        // debugはONの時に410ページ表示しない例外になります。
+        if ($this->app['debug'] == true) {
+            $this->setExpectedException('\Symfony\Component\HttpKernel\Exception\GoneHttpException');
         }
         $client = $this->createClient();
-        
-        $crawler = $client->request(
-           'GET',
-           '/forgot/reset/aaaa'
-        );
-        // debugはOFFの時に404ページが表示します。
-        if($this->app['debug'] == false){
-            $this->expected = 404;
+
+        $client->request('GET', '/forgot/reset/aaaa');
+        // debugはOFFの時に410ページが表示します。
+        if ($this->app['debug'] == false) {
+            $this->expected = 410;
             $this->actual = $client->getResponse()->getStatusCode();
             $this->verify();
         }
