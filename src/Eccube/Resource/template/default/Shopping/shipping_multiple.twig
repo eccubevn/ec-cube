@@ -33,7 +33,7 @@ $(function() {
 
         // 行のID設定
         var i = 0;
-        $('#item' + idx).find('.shipping_item').each(function() {
+        $(item).find('.shipping_item').each(function() {
             $(this).attr('id', 'item' + idx + '-' + i);
             i++;
         });
@@ -41,23 +41,40 @@ $(function() {
 
         // お届け先設定
         i = 0;
-        $('#item' + idx).find('select').each(function() {
+        $(item).find('select').each(function() {
             $(this).attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][customer_address]');
+            $(this).attr('id', 'form_shipping_multiple_' + idx + '_shipping_' + i + '_customer_address');
+
+            $(this).parent().attr('id', 'multiple_list__shipping_address--' + idx + '_' + i);
             i++;
         });
-        $(addrow).find('select').attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][customer_address]');
+        var select = $(addrow).find('select');
+        select.attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][customer_address]');
+        select.attr('id', 'form_shipping_multiple_' + idx + '_shipping_' + i + '_customer_address');
+
+        var select_div = select.parent();
+        select_div.attr('id', 'multiple_list__shipping_address--' + idx + '_' + i);
 
         // 数量設定
         i = 0;
-        $('#item' + idx).find('input').each(function() {
+        $(item).find('input').each(function() {
             $(this).attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][quantity]');
+            $(this).attr('id', 'form_shipping_multiple_' + idx + '_shipping_' + i + '_quantity');
+
+            $(this).parent().attr('id', 'multiple_list__shipping_quantity--' + idx + '_' + i);
             i++;
         });
-        $(addrow).find('input').attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][quantity]');
+        var input = $(addrow).find('input');
+        input.attr('name', 'form[shipping_multiple][' + idx + '][shipping][' + i + '][quantity]');
+        input.attr('id', 'form_shipping_multiple_' + idx + '_shipping_' + i + '_quantity');
+
+        var input_div = input.parent();
+        input_div.attr('id', 'multiple_list__shipping_quantity--' + idx + '_' + i);
 
         // 削除ボタン設定
         i = 0;
-        $('#item' + idx).find('button').each(function() {
+        $(item).find('button').each(function() {
+            $(this).attr('id', 'button__delete--' + idx + '_' + i);
             $(this).attr('data-itemidx', idx + '-' + i);
             $(this).data('itemidx', idx + '-' + i);
             if (i != 0) {
@@ -66,6 +83,7 @@ $(function() {
             }
             i++;
         });
+        $(addrow).find('button').attr('id', 'button__delete--' + idx + '_' + i);
         $(addrow).find('button').attr('data-itemidx', idx + '-' + i);
         $(addrow).find('button').data('itemidx', idx + '-' + i);
         $(addrow).find('button').removeAttr('style');
