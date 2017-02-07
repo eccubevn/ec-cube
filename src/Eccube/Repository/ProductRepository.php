@@ -29,7 +29,6 @@ use Eccube\Util\Str;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Eccube\Entity\Product;
 
 /**
  * ProductRepository
