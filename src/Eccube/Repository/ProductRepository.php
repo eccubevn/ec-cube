@@ -299,26 +299,4 @@ class ProductRepository extends EntityRepository
 
         return $qb;
     }
-
-    /**
-     * @param int $id
-     *
-     * @return array
-     */
-    public function getClassCategory1($id)
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->select('distinct cc.rank, cc.name, cc.id')
-            ->join('p.ProductClasses', 'pc')
-            ->join('pc.ClassCategory1', 'cc')
-            ->where('p.id = :id')
-            ->setParameter('id', $id);
-        $qb->addOrderBy('cc.rank', 'DESC');
-        $results = $qb->getQuery()->getResult();
-        $result = array();
-        foreach ($results as $tmp) {
-            $result[$tmp['id']] = $tmp['name'];
-        }
-        return $result;
-    }
 }

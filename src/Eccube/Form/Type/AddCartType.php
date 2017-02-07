@@ -24,6 +24,7 @@
 
 namespace Eccube\Form\Type;
 
+use Eccube\Application;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -33,6 +34,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContext;
+use Eccube\Entity\Product;
 
 class AddCartType extends AbstractType
 {
@@ -102,7 +104,7 @@ class AddCartType extends AbstractType
             if ($Product && $Product->getProductClasses()) {
                 if (!is_null($Product->getClassName1())) {
                     $ClassName2 = null;
-                    $ClassCategories1 = $app['eccube.repository.product']->getClassCategory1($Product->getId());
+                    $ClassCategories1 = $this->getClassCategory1($Product, $app);
                     $builder->add('classcategory_id1', 'choice', array(
                         'label' => $Product->getClassName1(),
                         'choices'   => array('__unselected' => '選択してください') + $ClassCategories1,
@@ -207,10 +209,14 @@ class AddCartType extends AbstractType
         }
     }
 
+
     /**
-     *
+     * @param Product $Product
+     * @param Application $app
+     * @param string $class1
+     * @return array
      */
-    public function getClassCategory2($Product, $app, $class1)
+    public function getClassCategory2(Product $Product, Application $app, $class1)
     {
         /* @var $Product \Eccube\Entity\Product */
         $ProductClasses = $Product->getProductClasses();
@@ -225,6 +231,26 @@ class AddCartType extends AbstractType
                     $result[$key] = $value;
                 }
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Product $Product
+     * @param Application $app
+     * @return array
+     */
+    private function getClassCategory1(Product $Product, Application $app)
+    {
+        /* @var $Product \Eccube\Entity\Product */
+        $ProductClasses = $Product->getProductClasses();
+        $ProductClass = $ProductClasses[0];
+        $ClassName1 = $ProductClass->getClassCategory1()->getClassName();
+        $sortCategoryClass1 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName1), array('rank' => 'DESC'));
+        $result = array();
+        foreach ($sortCategoryClass1 as $tmp) {
+            $result[$tmp['id']] = $tmp['name'];
         }
 
         return $result;

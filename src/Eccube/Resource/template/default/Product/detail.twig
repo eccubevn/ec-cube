@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 {% block javascript %}
 <script>
-    eccube.classCategories = {{ Product.class_categories|json_encode|raw }};
+    eccube.classCategories = {{ sort_class_category|json_encode|raw }};
 
     // 規格2に選択肢を割り当てる。
     function fnSetClassCategories(form, classcat_id2_selected) {
@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
         var product_id = $form.find('input[name=product_id]').val();
         var $sele1 = $form.find('select[name=classcategory_id1]');
         var $sele2 = $form.find('select[name=classcategory_id2]');
-        console.log($sele2);
+
         eccube.setClassCategories($form, product_id, $sele1, $sele2, classcat_id2_selected);
     }
 
