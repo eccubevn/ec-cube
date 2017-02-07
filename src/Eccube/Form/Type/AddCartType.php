@@ -42,6 +42,7 @@ class AddCartType extends AbstractType
     public $customerFavoriteProductRepository;
     public $Product = null;
 
+
     public function __construct(
         $config,
         \Symfony\Component\Security\Core\SecurityContext $security,
@@ -61,6 +62,7 @@ class AddCartType extends AbstractType
         $Product = $options['product'];
         $this->Product = $Product;
         $ProductClasses = $Product->getProductClasses();
+        $app = $options['app'];
 
         $builder
             ->add('mode', 'hidden', array(
@@ -99,9 +101,11 @@ class AddCartType extends AbstractType
             ;
             if ($Product && $Product->getProductClasses()) {
                 if (!is_null($Product->getClassName1())) {
+                    $ClassName2 = null;
+                    $ClassCategories1 = $app['eccube.repository.product']->getClassCategory1($Product->getId());
                     $builder->add('classcategory_id1', 'choice', array(
                         'label' => $Product->getClassName1(),
-                        'choices'   => array('__unselected' => '選択してください') + $Product->getClassCategories1(),
+                        'choices'   => array('__unselected' => '選択してください') + $ClassCategories1,
                     ));
                 }
                 if (!is_null($Product->getClassName2())) {
@@ -112,14 +116,16 @@ class AddCartType extends AbstractType
                 }
             }
 
-            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($Product) {
+            $class = $this;
+            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($Product, $app, $class) {
                 $data = $event->getData();
                 $form = $event->getForm();
                 if (!is_null($Product->getClassName2())) {
                     if ($data['classcategory_id1']) {
+                        $sortClassCategory2 = $class->getClassCategory2($Product, $app, $data['classcategory_id1']);
                         $form->add('classcategory_id2', 'choice', array(
                             'label' => $Product->getClassName2(),
-                            'choices' => array('__unselected' => '選択してください') + $Product->getClassCategories2($data['classcategory_id1']),
+                            'choices' => array('__unselected' => '選択してください') + $sortClassCategory2,
                         ));
                     }
                 }
@@ -133,6 +139,7 @@ class AddCartType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setRequired('product');
+        $resolver->setRequired('app');
         $resolver->setDefaults(array(
             'id_add_product_id' => true,
             'constraints' => array(
@@ -198,5 +205,28 @@ class AddCartType extends AbstractType
             }
 
         }
+    }
+
+    /**
+     *
+     */
+    public function getClassCategory2($Product, $app, $class1)
+    {
+        /* @var $Product \Eccube\Entity\Product */
+        $ProductClasses = $Product->getProductClasses();
+        $ProductClass = $ProductClasses[0];
+        $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
+        $sortCategoryClass2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
+        $CategoryClass2 = $Product->getClassCategories2($class1);
+        $result = array();
+        foreach ($sortCategoryClass2 as $tmp) {
+            foreach ($CategoryClass2 as $key => $value) {
+                if ($tmp->getId() == $key) {
+                    $result[$key] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 }

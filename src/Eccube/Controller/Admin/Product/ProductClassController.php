@@ -186,6 +186,7 @@ class ProductClassController
             $createProductClasses = $this->createProductClasses($app, $Product, $ClassName1, $ClassName2);
 
             $mergeProductClasses = array();
+            $sortProductClasses = array();
 
             // 商品税率が設定されている場合、商品税率を項目に設定
             $BaseInfo = $app['eccube.repository.base_info']->get();
@@ -207,6 +208,7 @@ class ProductClassController
                                 // チェックボックスを追加
                                 $productClass->setAdd(true);
                                 $flag = true;
+                                $sortProductClasses[] = $productClass;
                                 break;
                     }
                 }
@@ -222,7 +224,7 @@ class ProductClassController
             foreach ($mergeProductClasses as $mergeProductClass) {
                 // 空の商品規格にデフォルト値を設定
                 $this->setDefualtProductClass($app, $mergeProductClass, $ProductClass);
-                $ProductClasses->add($mergeProductClass);
+                array_push($sortProductClasses, $mergeProductClass);
             }
 
             $builder = $app['form.factory']->createBuilder();
@@ -232,14 +234,14 @@ class ProductClassController
                     'type' => 'admin_product_class',
                     'allow_add' => true,
                     'allow_delete' => true,
-                    'data' => $ProductClasses,
+                    'data' => $sortProductClasses,
                 ));
 
             $event = new EventArgs(
                 array(
                     'builder' => $builder,
                     'Product' => $Product,
-                    'ProductClasses' => $ProductClasses,
+                    'ProductClasses' => $sortProductClasses,
                 ),
                 $request
             );
@@ -586,12 +588,12 @@ class ProductClassController
 
         $ClassCategories1 = array();
         if ($ClassName1) {
-            $ClassCategories1 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName1));
+            $ClassCategories1 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName1), array('rank' => 'DESC'));
         }
 
         $ClassCategories2 = array();
         if ($ClassName2) {
-            $ClassCategories2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2));
+            $ClassCategories2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
         }
 
         $ProductClasses = array();

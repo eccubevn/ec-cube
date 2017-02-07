@@ -105,6 +105,7 @@ class ProductController
             $builder = $app['form.factory']->createNamedBuilder('', 'add_cart', null, array(
                 'product' => $Product,
                 'allow_extra_fields' => true,
+                'app' => $app,
             ));
             $addCartForm = $builder->getForm();
 
@@ -219,6 +220,7 @@ class ProductController
         $builder = $app['form.factory']->createNamedBuilder('', 'add_cart', null, array(
             'product' => $Product,
             'id_add_product_id' => false,
+            'app' => $app,
         ));
 
         $event = new EventArgs(
