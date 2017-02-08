@@ -66,8 +66,6 @@ class AddCartType extends AbstractType
         $Product = $options['product'];
         $this->Product = $Product;
         $ProductClasses = $Product->getProductClasses();
-        $app = $this->app;
-        $class = $this;
 
         $builder
             ->add('mode', 'hidden', array(
@@ -121,7 +119,7 @@ class AddCartType extends AbstractType
                 }
             }
 
-            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($Product, $app, $class) {
+            $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($Product) {
                 $data = $event->getData();
                 $form = $event->getForm();
                 if (!is_null($Product->getClassName2())) {
