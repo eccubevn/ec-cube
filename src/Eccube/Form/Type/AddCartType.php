@@ -126,10 +126,9 @@ class AddCartType extends AbstractType
                 $form = $event->getForm();
                 if (!is_null($Product->getClassName2())) {
                     if ($data['classcategory_id1']) {
-                        $sortClassCategory2 = $class->getClassCategory2($Product, $data['classcategory_id1']);
                         $form->add('classcategory_id2', 'choice', array(
                             'label' => $Product->getClassName2(),
-                            'choices' => array('__unselected' => '選択してください') + $sortClassCategory2,
+                            'choices' => array('__unselected' => '選択してください') + $Product->getClassCategories2($data['classcategory_id1']),
                         ));
                     }
                 }
@@ -208,33 +207,6 @@ class AddCartType extends AbstractType
             }
 
         }
-    }
-
-
-    /**
-     * @param Product $Product
-     * @param string $class1
-     *
-     * @return array
-     */
-    public function getClassCategory2(Product $Product, $class1)
-    {
-        /* @var $Product \Eccube\Entity\Product */
-        $ProductClasses = $Product->getProductClasses();
-        $ProductClass = $ProductClasses[0];
-        $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
-        $sortCategoryClass2 = $this->app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
-        $CategoryClass2 = $Product->getClassCategories2($class1);
-        $result = array();
-        foreach ($sortCategoryClass2 as $tmp) {
-            foreach ($CategoryClass2 as $key => $value) {
-                if ($tmp->getId() == $key) {
-                    $result[$key] = $value;
-                }
-            }
-        }
-
-        return $result;
     }
 
     /**
