@@ -186,7 +186,7 @@ class ProductClassController
             $createProductClasses = $this->createProductClasses($app, $Product, $ClassName1, $ClassName2);
 
             $mergeProductClasses = array();
-            $sortProductClasses = array();
+            $sortProductClasses = new ArrayCollection();
 
             // 商品税率が設定されている場合、商品税率を項目に設定
             $BaseInfo = $app['eccube.repository.base_info']->get();
@@ -208,7 +208,7 @@ class ProductClassController
                                 // チェックボックスを追加
                                 $productClass->setAdd(true);
                                 $flag = true;
-                                $sortProductClasses[] = $productClass;
+                                $sortProductClasses->add($productClass);
                                 break;
                     }
                 }
@@ -224,7 +224,7 @@ class ProductClassController
             foreach ($mergeProductClasses as $mergeProductClass) {
                 // 空の商品規格にデフォルト値を設定
                 $this->setDefualtProductClass($app, $mergeProductClass, $ProductClass);
-                array_push($sortProductClasses, $mergeProductClass);
+                $sortProductClasses->add($mergeProductClass);
             }
 
             $builder = $app['form.factory']->createBuilder();
