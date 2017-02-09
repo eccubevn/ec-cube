@@ -223,7 +223,7 @@ class ProductClassController
             // 登録済み商品規格と空の商品規格をマージ
             foreach ($mergeProductClasses as $mergeProductClass) {
                 // 空の商品規格にデフォルト値を設定
-                $this->setDefualtProductClass($app, $mergeProductClass, $ProductClass);
+                $this->setDefualtProductClass($app, $mergeProductClass, $sortProductClasses[0]);
                 $sortProductClasses->add($mergeProductClass);
             }
 
