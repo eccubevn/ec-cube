@@ -141,6 +141,8 @@ class ShippingType extends AbstractType
                 'format' => 'yyyy-MM-dd',
                 'required' => false,
             ))
+            // temp error
+            ->add('error', 'text')
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($BaseInfo) {
                 if ($BaseInfo->getOptionMultipleShipping() == Constant::ENABLED) {
                     $form = $event->getForm();
@@ -207,18 +209,19 @@ class ShippingType extends AbstractType
                             ->setParameter('Delivery', $Delivery);
                     },
                 ));
-            })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($BaseInfo) {
-                if ($BaseInfo->getOptionMultipleShipping() == Constant::ENABLED) {
-                    $form = $event->getForm();
-                    $shipmentItems = $form['ShipmentItems']->getData();
+            });
 
-                    if (empty($shipmentItems) || count($shipmentItems) < 1) {
-                        // 画面下部にエラーメッセージを表示させる
-                        $form['shipping_delivery_date']->addError(new FormError('商品が追加されていません。'));
-                    }
+        if ($BaseInfo->getOptionMultipleShipping() == Constant::ENABLED) {
+            $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                $shipmentItems = $form['ShipmentItems']->getData();
+
+                if (empty($shipmentItems) || count($shipmentItems) < 1) {
+                    // Add to error to temp attribute
+                    $form['error']->addError(new FormError('商品が追加されていません。'));
                 }
             });
+        }
     }
 
     /**

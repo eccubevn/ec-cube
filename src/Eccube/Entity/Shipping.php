@@ -202,6 +202,11 @@ class Shipping extends \Eccube\Entity\AbstractEntity
     private $ProductClassOfTemp;
 
     /**
+     * @var string error (temp)
+     */
+    private $error;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -1052,6 +1057,25 @@ class Shipping extends \Eccube\Entity\AbstractEntity
     public function setProductClassOfTemp(\Eccube\Entity\ProductClass $ProductClassOfTemp)
     {
         $this->ProductClassOfTemp = $ProductClassOfTemp;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @param string $error
+     * @return $this
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
 
         return $this;
     }

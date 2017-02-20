@@ -226,6 +226,7 @@ class OrderType extends AbstractType
                 'allow_add' => true,
                 'allow_delete' => true,
                 'prototype' => true,
+                'error_bubbling' => true,
             ))
             ->add('Shippings', 'collection', array(
                 'type' => 'shipping',
@@ -306,12 +307,13 @@ class OrderType extends AbstractType
 
             $event->setData($data);
         });
+
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
+
             $orderDetails = $form['OrderDetails']->getData();
             if (empty($orderDetails) || count($orderDetails) < 1) {
-                // 画面下部にエラーメッセージを表示させる
-                $form['charge']->addError(new FormError('商品が追加されていません。'));
+                $form['OrderDetails']->addError(new FormError('商品が追加されていません。'));
             }
         });
     }

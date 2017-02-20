@@ -376,6 +376,7 @@ var setModeAndSubmit = function(mode, keyname, keyid) {
                                 <li><button type="submit" class="btn btn-default" name="mode" value="calc">計算結果の更新</button></li>
                             </ul>
                         </div>
+                        {{ form_errors(form) }}
                         <div class="tableish"
                              id="order_detail_list"
                              data-prototype="
@@ -515,7 +516,7 @@ var setModeAndSubmit = function(mode, keyname, keyid) {
             {% if BaseInfo.optionMultipleShipping %}
             <div id="shipping_info__button_new"><button type="submit" class="btn btn-default" name="mode" value="add_delivery">お届け先を新規追加</button></div>
             {% endif %}
-            {% for shippingForm in form.Shippings %}
+            {% for shippingKey,shippingForm in form.Shippings %}
             {% set shippingIndex = loop.index0 %}
             <div id="shipping_info_box--{{ shippingIndex }}" class="box accordion">
                 <div id="shipping_info_box__toggle--{{ shippingIndex }}" class="box-header toggle active">
@@ -536,7 +537,8 @@ var setModeAndSubmit = function(mode, keyname, keyid) {
                         </div>
 
                         {% if BaseInfo.optionMultipleShipping %}
-                        <div class="tableish"
+                            {{ form_errors(shippingForm.error) }}
+                            <div class="tableish"
                              id="shipment_item_list{{ shippingIndex }}"
                              data-prototype="
                              {% filter escape %}
