@@ -26,7 +26,6 @@ namespace Eccube\Controller;
 
 use Eccube\Application;
 use Eccube\Common\Constant;
-use Eccube\Entity\Product;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
 use Eccube\Exception\CartException;
@@ -312,8 +311,7 @@ class ProductController
             $Customer = $app->user();
             $is_favorite = $app['eccube.repository.customer_favorite_product']->isFavorite($Customer, $Product);
         }
-
-
+        
         return $app->render('Product/detail.twig', array(
             'title' => $this->title,
             'subtitle' => $Product->getName(),
