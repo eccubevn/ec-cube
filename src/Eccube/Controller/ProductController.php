@@ -313,14 +313,12 @@ class ProductController
             $is_favorite = $app['eccube.repository.customer_favorite_product']->isFavorite($Customer, $Product);
         }
 
-        $classCategory = $this->sortClassCategory($Product, $app);
 
         return $app->render('Product/detail.twig', array(
             'title' => $this->title,
             'subtitle' => $Product->getName(),
             'form' => $form->createView(),
             'Product' => $Product,
-            'sort_class_category' => $classCategory,
             'is_favorite' => $is_favorite,
         ));
     }
@@ -340,41 +338,5 @@ class ProductController
         } else {
             return '全商品';
         }
-    }
-
-    /**
-     * @param Product $Product
-     * @param Application $app
-     * @return array|null
-     */
-    private function sortClassCategory(Product $Product, Application $app)
-    {
-        /* @var $Product \Eccube\Entity\Product */
-        if ($Product->hasProductClass()) {
-            $ProductClasses = $Product->getProductClasses();
-            $ProductClass = $ProductClasses[0];
-            $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
-            $sortCategoryClass2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
-            $classCategory = $Product->getClassCategories();
-            foreach ($classCategory as $key => $value) {
-                $result = array();
-                foreach ($sortCategoryClass2 as $tmp) {
-                    foreach ($value as $id => $val) {
-                        if ('#' . $tmp->getId() == $id) {
-                            $result[$id] = $val;
-                        } elseif ($id == '#') {
-                            $result[$id] = $val;
-                        }
-                    }
-                }
-                if (!empty($result)) {
-                    $classCategory[$key] = $result;
-                }
-            }
-
-            return $classCategory;
-        }
-
-        return null;
     }
 }

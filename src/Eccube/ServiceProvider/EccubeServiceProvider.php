@@ -317,7 +317,7 @@ class EccubeServiceProvider implements ServiceProviderInterface
             $types[] = new \Eccube\Form\Type\CustomerType($app); // 削除予定
 
             if (isset($app['security']) && isset($app['eccube.repository.customer_favorite_product'])) {
-                $types[] = new \Eccube\Form\Type\AddCartType($app['config'], $app['security'], $app['eccube.repository.customer_favorite_product'], $app);
+                $types[] = new \Eccube\Form\Type\AddCartType($app['config'], $app['security'], $app['eccube.repository.customer_favorite_product']);
             }
             $types[] = new \Eccube\Form\Type\SearchProductType($app);
             $types[] = new \Eccube\Form\Type\SearchProductBlockType($app);

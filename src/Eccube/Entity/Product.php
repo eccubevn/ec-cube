@@ -26,6 +26,8 @@ namespace Eccube\Entity;
 
 use Eccube\Common\Constant;
 use Doctrine\Common\Collections\ArrayCollection;
+use Eccube\Application;
+
 /**
  * Product
  */
@@ -154,6 +156,8 @@ class Product extends \Eccube\Entity\AbstractEntity
     public function getClassCategories1()
     {
         $this->_calc();
+        $app = Application::getInstance();
+        $this->classCategories1 = $this->sortClassCategory1($app);
 
         return $this->classCategories1;
     }
@@ -414,6 +418,8 @@ class Product extends \Eccube\Entity\AbstractEntity
             );
         }
 
+        $app = Application::getInstance();
+        $class_categories = $this->sortClassCategory2($app, $class_categories);
         return $class_categories;
     }
 
@@ -1015,5 +1021,58 @@ class Product extends \Eccube\Entity\AbstractEntity
         return $this->ProductTag;
     }
 
+    /**
+     * @param Application $app
+     *
+     * @return array
+     */
+    private function sortClassCategory1(Application $app)
+    {
+        $ProductClasses = $this->getProductClasses();
+        $ProductClass = $ProductClasses[0];
+        $ClassName1 = $ProductClass->getClassCategory1()->getClassName();
+        $sortCategoryClass1 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName1), array('rank' => 'DESC'));
+        $result = array();
+        foreach ($sortCategoryClass1 as $tmp) {
+            $result[$tmp['id']] = $tmp['name'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Application $app
+     * @param array $classCategory
+     *
+     * @return array|null
+     */
+    private function sortClassCategory2(Application $app, $classCategory)
+    {
+        if ($this->hasProductClass()) {
+            $ProductClasses = $this->getProductClasses();
+            $ProductClass = $ProductClasses[0];
+            $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
+            $sortCategoryClass2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
+            foreach ($classCategory as $key => $value) {
+                $result = array();
+                foreach ($sortCategoryClass2 as $tmp) {
+                    foreach ($value as $id => $val) {
+                        if ('#' . $tmp->getId() == $id) {
+                            $result[$id] = $val;
+                        } elseif ($id == '#') {
+                            $result[$id] = $val;
+                        }
+                    }
+                }
+                if (!empty($result)) {
+                    $classCategory[$key] = $result;
+                }
+            }
+
+            return $classCategory;
+        }
+
+        return null;
+    }
 
 }

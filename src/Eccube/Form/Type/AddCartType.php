@@ -24,7 +24,6 @@
 
 namespace Eccube\Form\Type;
 
-use Eccube\Application;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -34,7 +33,6 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContext;
-use Eccube\Entity\Product;
 
 class AddCartType extends AbstractType
 {
@@ -43,18 +41,15 @@ class AddCartType extends AbstractType
     public $security;
     public $customerFavoriteProductRepository;
     public $Product = null;
-    private $app;
 
     public function __construct(
         $config,
         \Symfony\Component\Security\Core\SecurityContext $security,
-        \Eccube\Repository\CustomerFavoriteProductRepository $customerFavoriteProductRepository,
-        Application $app
+        \Eccube\Repository\CustomerFavoriteProductRepository $customerFavoriteProductRepository
     ) {
         $this->config = $config;
         $this->security = $security;
         $this->customerFavoriteProductRepository = $customerFavoriteProductRepository;
-        $this->app = $app;
     }
 
     /**
@@ -104,11 +99,9 @@ class AddCartType extends AbstractType
             ;
             if ($Product && $Product->getProductClasses()) {
                 if (!is_null($Product->getClassName1())) {
-                    $ClassName2 = null;
-                    $ClassCategories1 = $this->getClassCategory1($Product);
                     $builder->add('classcategory_id1', 'choice', array(
                         'label' => $Product->getClassName1(),
-                        'choices'   => array('__unselected' => '選択してください') + $ClassCategories1,
+                        'choices'   => array('__unselected' => '選択してください') + $Product->getClassCategories1(),
                     ));
                 }
                 if (!is_null($Product->getClassName2())) {
@@ -205,25 +198,5 @@ class AddCartType extends AbstractType
             }
 
         }
-    }
-
-    /**
-     * @param Product $Product
-     *
-     * @return array
-     */
-    private function getClassCategory1(Product $Product)
-    {
-        /* @var $Product \Eccube\Entity\Product */
-        $ProductClasses = $Product->getProductClasses();
-        $ProductClass = $ProductClasses[0];
-        $ClassName1 = $ProductClass->getClassCategory1()->getClassName();
-        $sortCategoryClass1 = $this->app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName1), array('rank' => 'DESC'));
-        $result = array();
-        foreach ($sortCategoryClass1 as $tmp) {
-            $result[$tmp['id']] = $tmp['name'];
-        }
-
-        return $result;
     }
 }
