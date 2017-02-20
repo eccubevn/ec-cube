@@ -418,8 +418,11 @@ class Product extends \Eccube\Entity\AbstractEntity
             );
         }
 
-        $app = Application::getInstance();
-        $class_categories = $this->sortClassCategory2($app, $class_categories);
+        if ($this->hasProductClass()) {
+            $app = Application::getInstance();
+            $class_categories = $this->sortClassCategory2($app, $class_categories);
+        }
+
         return $class_categories;
     }
 
