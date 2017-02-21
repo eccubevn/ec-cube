@@ -1054,25 +1054,28 @@ class Product extends \Eccube\Entity\AbstractEntity
         if ($this->hasProductClass()) {
             $ProductClasses = $this->getProductClasses();
             $ProductClass = $ProductClasses[0];
-            $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
-            $sortCategoryClass2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
-            foreach ($classCategory as $key => $value) {
-                $result = array();
-                foreach ($sortCategoryClass2 as $tmp) {
-                    foreach ($value as $id => $val) {
-                        if ('#' . $tmp->getId() == $id) {
-                            $result[$id] = $val;
-                        } elseif ($id == '#') {
-                            $result[$id] = $val;
+            //if have class category2
+            if ($ProductClass->getClassCategory2() && $ProductClass->getClassCategory2()->getId()) {
+                $ClassName2 = $ProductClass->getClassCategory2()->getClassName();
+                $sortCategoryClass2 = $app['eccube.repository.class_category']->findBy(array('ClassName' => $ClassName2), array('rank' => 'DESC'));
+                foreach ($classCategory as $key => $value) {
+                    $result = array();
+                    foreach ($sortCategoryClass2 as $tmp) {
+                        foreach ($value as $id => $val) {
+                            if ('#' . $tmp->getId() == $id) {
+                                $result[$id] = $val;
+                            } elseif ($id == '#') {
+                                $result[$id] = $val;
+                            }
                         }
                     }
+                    if (!empty($result)) {
+                        $classCategory[$key] = $result;
+                    }
                 }
-                if (!empty($result)) {
-                    $classCategory[$key] = $result;
-                }
-            }
 
-            return $classCategory;
+                return $classCategory;
+            }
         }
 
         return null;
