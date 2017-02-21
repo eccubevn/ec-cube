@@ -99,11 +99,11 @@ $(function() {
             });
 
             $(input).each(function(index) {
-                ref[index].empty().hide().append(input[index]).fadeIn(1000);
+                ref[index].empty().hide().append(input[index]).show();
             });
 
-            $(this).fadeOut(500);
-            $('.mod-button').fadeIn(1200);
+            $(this).hide();
+            $('.mod-button').show();
         });
 
         $('#customer-ok').click(function() {
