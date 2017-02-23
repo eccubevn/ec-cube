@@ -124,7 +124,13 @@ $(function() {
                 type: 'POST',
                 data: postData,
                 dataType: 'json'
-            }).done(function(){
+            }).done(function(data){
+                if (data.status == 'OK') {
+                    ref[2].empty().text(data.kana01);
+                    ref[3].empty().text(data.kana02);
+                    $('#customer-kana01').val(data.kana01);
+                    $('#customer-kana02').val(data.kana02);
+                }
             }).fail(function(){
                 alert('更新に失敗しました。入力内容を確認してください。');
                 $(ref).each(function(index) {
@@ -134,7 +140,7 @@ $(function() {
             });
 
             $('.mod-button').hide();
-            customerEditButton.fadeIn(1000);
+            customerEditButton.show();
         });
 
         $('#customer-cancel').click(function() {
@@ -144,7 +150,7 @@ $(function() {
             });
 
             $('.mod-button').hide();
-            customerEditButton.fadeIn(1000);
+            customerEditButton.show();
         });
     {% endif %}
 

@@ -35,6 +35,7 @@ use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
 use Eccube\Exception\CartException;
 use Eccube\Exception\ShoppingException;
+use Eccube\Util\Converter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -796,7 +797,8 @@ class ShoppingController extends AbstractController
      */
     public function customer(Application $app, Request $request)
     {
-        $response = new Response(json_encode('NG'), 400);
+        $message = array('status' => 'NG');
+        $response = new Response(json_encode($message), 400);
         $response->headers->set('Content-Type', 'application/json');
         if (!$request->isXmlHttpRequest()) {
             return $response;
@@ -867,13 +869,14 @@ class ShoppingController extends AbstractController
             $app['eccube.event.dispatcher']->dispatch(EccubeEvents::FRONT_SHOPPING_CUSTOMER_INITIALIZE, $event);
 
             log_info('非会員お客様情報変更処理完了', array($Order->getId()));
-            $response = new Response(json_encode('OK'));
+            $message = array('status' => 'OK', 'kana01' => $data['customer_kana01'], 'kana02' => $data['customer_kana02']);
+            $response = new Response(json_encode($message));
             $response->headers->set('Content-Type', 'application/json');
         } catch (\Exception $e) {
             log_error('予期しないエラー', array($e->getMessage()));
             $app['monolog']->error($e);
 
-            $response = new Response(json_encode('NG'), 500);
+            $response = new Response(json_encode($message), 500);
             $response->headers->set('Content-Type', 'application/json');
         }
 
@@ -1405,7 +1408,7 @@ class ShoppingController extends AbstractController
      * @param array $data リクエストパラメータ
      * @return array
      */
-    private function customerValidation(Application $app, array $data)
+    private function customerValidation(Application $app, array &$data)
     {
         // 入力チェック
         $errors = array();
@@ -1421,13 +1424,14 @@ class ShoppingController extends AbstractController
             new Assert\Length(array('max' => $app['config']['name_len'],)),
             new Assert\Regex(array('pattern' => '/^[^\s ]+$/u', 'message' => 'form.type.name.lastname.nothasspace'))
         ));
-
+        $data['customer_kana01'] = Converter::convertToKana($data['customer_kana01']);
         $errors[] = $app['validator']->validateValue($data['customer_kana01'], array(
             new Assert\NotBlank(),
             new Assert\Length(array('max' => $app['config']['kana_len'],)),
             new Assert\Regex(array('pattern' => '/^[ァ-ヶｦ-ﾟー]+$/u'))
         ));
 
+        $data['customer_kana02'] = Converter::convertToKana($data['customer_kana02']);
         $errors[] = $app['validator']->validateValue($data['customer_kana02'], array(
             new Assert\NotBlank(),
             new Assert\Length(array('max' => $app['config']['kana_len'],)),
