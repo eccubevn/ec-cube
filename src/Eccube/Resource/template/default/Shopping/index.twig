@@ -21,25 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #}
 {% extends 'default_frame.twig' %}
 
-{% block stylesheet %}
-    <style type="text/css">
-        .form-group.input_name input {
-            width: 45% !important;
-            margin-bottom: 8px !important;
-        }
-        .form-group .customer-addr01 input, .form-group .customer-addr02 input, .column .form-inline input, .column .form-inline select {
-            margin-bottom: 8px !important;
-        }
-        .form-group.input_zip input, .form-group.input_tel input {
-            vertical-align: baseline !important;
-        }
-    </style>
-{% endblock stylesheet %}
-
 {% block javascript %}
 <script>
 $(function() {
-
     $('.delivery').on('change', function() {
         $('#shopping-form').attr('action', '{{ url("shopping_delivery") }}').submit();
         return false;
@@ -126,6 +110,7 @@ $(function() {
                 dataType: 'json'
             }).done(function(data){
                 if (data.status == 'OK') {
+                    // kana field
                     ref[2].empty().text(data.kana01);
                     ref[3].empty().text(data.kana02);
                     $('#customer-kana01').val(data.kana01);
@@ -221,8 +206,8 @@ $(function() {
                     <h2 class="heading02">お客様情報</h2>
                     <div id="customer_detail_box" class="column is-edit">
                         <div id="customer_detail_box__customer_address" class="address">
-                            <div class="form-group input_name"><span class="customer-edit customer-name01">{{ Order.name01 }}</span> <span class="customer-edit customer-name02">{{ Order.name02 }}</span> 様</div>
-                            <div class="form-group input_name"><span class="customer-edit customer-kana01">{{ Order.kana01 }}</span> <span class="customer-edit customer-kana02">{{ Order.kana02 }}</span></div>
+                            <div class="form-group customer-input_name"><span class="customer-edit customer-name01">{{ Order.name01 }}</span> <span class="customer-edit customer-name02">{{ Order.name02 }}</span> 様</div>
+                            <div class="form-group customer-input_name"><span class="customer-edit customer-kana01">{{ Order.kana01 }}</span> <span class="customer-edit customer-kana02">{{ Order.kana02 }}</span></div>
                             <div class="form-group form-inline input_zip">〒<span class="customer-edit customer-zip01">{{ Order.zip01 }}</span>&nbsp;-&nbsp;<span class="customer-edit customer-zip02">{{ Order.zip02 }}</span></div>
                             <div class="form-group form-inline input_zip"><span class="customer-edit customer-pref">{{ Order.pref }}</span></div>
                             <div class="form-group"><span class="customer-edit customer-addr01">{{ Order.addr01 }}</span></div>

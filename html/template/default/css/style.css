@@ -4146,9 +4146,10 @@ fieldset[disabled] .btn-link:focus {
     .local_nav li {
         width: 25%;
     }
-   .local_nav.favorite li {
+    .local_nav.favorite li {
         width: 20%;
     }
+
     .historylist_column {
         border-top: 1px solid #ccc;
         margin: 0;
@@ -4420,4 +4421,22 @@ fieldset[disabled] .btn-link:focus {
 		margin-top: 0;
 
 	}
+
+    /*Shopping customer edit section*/
+    #customer_detail_box .form-group.customer-input_name input {
+        width: 45% !important;
+        margin-bottom: 8px !important;
+    }
+
+    #customer_detail_box .form-group .customer-addr01 input,
+    #customer_detail_box .form-group .customer-addr02 input,
+    #customer_detail_box .column .form-inline input,
+    #customer_detail_box .column .form-inline select {
+        margin-bottom: 8px !important;
+    }
+
+    #customer_detail_box .form-group.input_zip input,
+    #customer_detail_box .form-group.input_tel input {
+        vertical-align: baseline !important;
+    }
 }
