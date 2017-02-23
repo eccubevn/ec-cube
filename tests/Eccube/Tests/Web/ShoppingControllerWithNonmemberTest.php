@@ -327,7 +327,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         // Test if Content-Type is valid application/json
         $this->assertSame('application/json', $response->headers->get('Content-Type'));
         // Test content
-        $this->assertEquals('"NG"', $response->getContent());
+        $this->assertEquals('{"status":"NG"}', $response->getContent());
         // Test that response is not empty
         $this->assertNotEmpty($client->getResponse()->getContent());
     }
@@ -361,7 +361,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         // Test if Content-Type is valid application/json
         $this->assertSame('application/json', $response->headers->get('Content-Type'));
         // Test content
-        $this->assertEquals('"NG"', $response->getContent());
+        $this->assertEquals('{"status":"NG"}', $response->getContent());
         // Test that response is not empty
         $this->assertNotEmpty($client->getResponse()->getContent());
     }
@@ -395,7 +395,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         // Test if Content-Type is valid application/json
         $this->assertSame('application/json', $response->headers->get('Content-Type'));
         // Test content
-        $this->assertEquals('"NG"', $response->getContent());
+        $this->assertEquals('{"status":"NG"}', $response->getContent());
         // Test that response is not empty
         $this->assertNotEmpty($client->getResponse()->getContent());
     }
@@ -454,7 +454,7 @@ class ShoppingControllerWithNonmemberTest extends AbstractShoppingControllerTest
         // Test if Content-Type is valid application/json
         $this->assertSame('application/json', $response->headers->get('Content-Type'));
         // Test content
-        $this->assertEquals('"OK"', $response->getContent());
+        $this->assertContains('"status":"OK"', $response->getContent());
         // Test that response is not empty
         $this->assertNotEmpty($client->getResponse()->getContent());
     }
