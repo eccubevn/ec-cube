@@ -50,6 +50,8 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_ADD_INITIALIZE,
+            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
+            EccubeEvents::SERVICE_CART_ADD_PRODUCT,
             EccubeEvents::FRONT_CART_ADD_COMPLETE,
         );
 
@@ -76,6 +78,7 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_UP_INITIALIZE,
+            EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY,
             EccubeEvents::FRONT_CART_UP_COMPLETE,
         );
 
@@ -103,6 +106,7 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_DOWN_INITIALIZE,
+            EccubeEvents::SERVICE_CART_REMOVE_PRODUCT,
             EccubeEvents::FRONT_CART_DOWN_COMPLETE,
         );
 
@@ -132,6 +136,7 @@ class CartControllerTest extends AbstractWebTestCase
 
         $hookpoins = array(
             EccubeEvents::FRONT_CART_REMOVE_INITIALIZE,
+            EccubeEvents::SERVICE_CART_REMOVE_PRODUCT,
             EccubeEvents::FRONT_CART_REMOVE_COMPLETE,
         );
 

@@ -764,3 +764,30 @@ service.shopping.order.status:
 service.shopping.notify.complete:
   - [onShoppingService2, NORMAL]
 
+service.shopping.customer.update:
+  - [onShoppingService3, NORMAL]
+
+service.shopping.discount:
+  - [onShoppingService4, NORMAL]
+
+service.shopping.order.update:
+  - [onShoppingService5, NORMAL]
+
+service.shopping.stock.update:
+  - [onShoppingService6, NORMAL]
+
+service.shopping.notify.process.purchase:
+  - [onShoppingService7, NORMAL]
+
+# CartService
+service.cart.add.product:
+  - [onCartService1, NORMAL]
+
+service.cart.remove.product:
+  - [onCartService2, NORMAL]
+
+service.cart.clear:
+  - [onCartService3, NORMAL]
+
+service.cart.product.quantity:
+  - [onCartService4, NORMAL]

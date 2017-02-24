@@ -31,6 +31,8 @@ use Eccube\Entity\Master\Disp;
 use Eccube\Entity\ProductClass;
 use Eccube\Exception\CartException;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Eccube\Event\EccubeEvents;
+use Eccube\Event\EventArgs;
 
 class CartService
 {
@@ -189,10 +191,19 @@ class CartService
      */
     public function clear()
     {
+        $CartItems = $this->cart->getCartItems();
         $this->cart
             ->setPreOrderId(null)
             ->setLock(false)
             ->clearCartItems();
+
+        $event = new EventArgs(
+            array(
+                'CartItems' => $CartItems,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_CLEAR, $event);
 
         return $this;
     }
@@ -212,6 +223,15 @@ class CartService
     {
         $quantity += $this->getProductQuantity($productClassId);
         $this->setProductQuantity($productClassId, $quantity);
+
+        $event = new EventArgs(
+            array(
+                'productClassId' => $productClassId,
+                'quantity' => $quantity,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_ADD_PRODUCT, $event);
 
         return $this;
     }
@@ -310,6 +330,14 @@ class CartService
             ->setQuantity($quantity);
 
         $this->cart->setCartItem($CartItem);
+        $event = new EventArgs(
+            array(
+                'productClassId' => $ProductClass->getId(),
+                'quantity' => $quantity
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY, $event);
 
         return $this;
     }
@@ -482,6 +510,14 @@ class CartService
 
             $this->getCart()->setPayments($payments);
         }
+
+        $event = new EventArgs(
+            array(
+                'productClassId' => $productClassId
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_CART_REMOVE_PRODUCT, $event);
 
         return $this;
     }

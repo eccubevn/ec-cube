@@ -837,6 +837,15 @@ class ShoppingService
         $this->setDeliveryFreeAmount($Order);
         // 配送料無料条件(合計数量)
         $this->setDeliveryFreeQuantity($Order);
+
+        $event = new EventArgs(
+            array(
+                'Order' => $Order,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_SHOPPING_ORDER_UPDATE, $event);
+
     }
 
 
@@ -885,6 +894,13 @@ class ShoppingService
             }
         }
 
+        $event = new EventArgs(
+            array(
+                'Order' => $Order,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_SHOPPING_STOCK_UPDATE, $event);
     }
 
 
@@ -910,6 +926,14 @@ class ShoppingService
         $user->setBuyTimes($user->getBuyTimes() + 1);
         $user->setBuyTotal($user->getBuyTotal() + $Order->getTotal());
 
+        $event = new EventArgs(
+            array(
+                'Order' => $Order,
+                'User' => $user
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_SHOPPING_CUSTOMER_UPDATE, $event);
     }
 
 
@@ -1200,6 +1224,13 @@ class ShoppingService
 
         $Order->setDiscount($Order->getDiscount() + $discount);
 
+        $event = new EventArgs(
+            array(
+                'Order' => $Order,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_SHOPPING_DISCOUNT, $event);
     }
 
 
@@ -1300,5 +1331,23 @@ class ShoppingService
 
     }
 
+
+    /**
+     * 購入トランザクションの通知をするためのイベント
+     *
+     * @param Order $Order
+     */
+    public function notifyProcessPurchase(Order $Order)
+    {
+
+        $event = new EventArgs(
+            array(
+                'Order' => $Order,
+            ),
+            null
+        );
+        $this->app['eccube.event.dispatcher']->dispatch(EccubeEvents::SERVICE_SHOPPING_NOTIFY_PROCESS_PURCHASE, $event);
+
+    }
 
 }

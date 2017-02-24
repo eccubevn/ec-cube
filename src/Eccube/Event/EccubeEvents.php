@@ -605,5 +605,19 @@ final class EccubeEvents
      */
     const SERVICE_SHOPPING_ORDER_STATUS = 'service.shopping.order.status';
     const SERVICE_SHOPPING_NOTIFY_COMPLETE = 'service.shopping.notify.complete';
+    const SERVICE_SHOPPING_CUSTOMER_UPDATE = 'service.shopping.customer.update';
+    const SERVICE_SHOPPING_DISCOUNT = 'service.shopping.discount';
+    const SERVICE_SHOPPING_ORDER_UPDATE = 'service.shopping.order.update';
+    const SERVICE_SHOPPING_STOCK_UPDATE = 'service.shopping.stock.update';
+    const SERVICE_SHOPPING_NOTIFY_PROCESS_PURCHASE = 'service.shopping.notify.process.purchase';
+
+    /**
+     * CartService
+     */
+    const SERVICE_CART_ADD_PRODUCT = 'service.cart.add.product';
+    const SERVICE_CART_REMOVE_PRODUCT = 'service.cart.remove.product';
+    const SERVICE_CART_CLEAR = 'service.cart.clear';
+    const SERVICE_CART_PRODUCT_QUANTITY = 'service.cart.product.quantity';
+
 
 }

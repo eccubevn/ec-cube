@@ -1276,5 +1276,52 @@ class HookPointEvent
         echo EccubeEvents::SERVICE_SHOPPING_NOTIFY_COMPLETE;
     }
 
+    function onShoppingService3(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_SHOPPING_CUSTOMER_UPDATE;
+    }
+
+    function onShoppingService4(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_SHOPPING_DISCOUNT;
+    }
+
+    function onShoppingService5(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_SHOPPING_ORDER_UPDATE;
+    }
+
+    function onShoppingService6(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_SHOPPING_STOCK_UPDATE;
+    }
+
+    function onShoppingService7(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_SHOPPING_NOTIFY_PROCESS_PURCHASE;
+    }
+
+    /**
+     * CartService
+     */
+    function onCartService1(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_CART_ADD_PRODUCT;
+    }
+
+    function onCartService2(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_CART_REMOVE_PRODUCT;
+    }
+
+    function onCartService3(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_CART_CLEAR;
+    }
+
+    function onCartService4(EventArgs $event)
+    {
+        echo EccubeEvents::SERVICE_CART_PRODUCT_QUANTITY;
+    }
 
 }
