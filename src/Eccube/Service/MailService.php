@@ -32,7 +32,6 @@ class MailService
     /** @var \Eccube\Application */
     public $app;
 
-
     /** @var \Eccube\Entity\BaseInfo */
     public $BaseInfo;
 
@@ -60,14 +59,7 @@ class MailService
             'activateUrl' => $activateUrl,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] 会員登録のご確認')
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Customer->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Customer->getEmail(), '会員登録のご確認', $body);
 
         $event = new EventArgs(
             array(
@@ -101,14 +93,7 @@ class MailService
             'BaseInfo' => $this->BaseInfo,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] 会員登録が完了しました。')
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Customer->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Customer->getEmail(), '会員登録が完了しました。', $body);
 
         $event = new EventArgs(
             array(
@@ -143,14 +128,7 @@ class MailService
             'BaseInfo' => $this->BaseInfo,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] 退会手続きのご完了')
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($email))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($email, '退会手続きのご完了', $body);
 
         $event = new EventArgs(
             array(
@@ -186,14 +164,7 @@ class MailService
         ));
 
         // 問い合わせ者にメール送信
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] お問い合わせを受け付けました。')
-            ->setFrom(array($this->BaseInfo->getEmail02() => $this->BaseInfo->getShopName()))
-            ->setTo(array($formData['email']))
-            ->setBcc($this->BaseInfo->getEmail02())
-            ->setReplyTo($this->BaseInfo->getEmail02())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($formData['email'], 'お問い合わせを受け付けました。', $body);
 
         $event = new EventArgs(
             array(
@@ -243,14 +214,7 @@ class MailService
             'Order' => $Order,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] ' . $MailTemplate->getSubject())
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Order->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Order->getEmail(), $MailTemplate->getSubject(), $body);
 
         $event = new EventArgs(
             array(
@@ -268,7 +232,6 @@ class MailService
         log_info('受注メール送信完了', array('count' => $count));
 
         return $message;
-
     }
 
 
@@ -287,14 +250,7 @@ class MailService
             'activateUrl' => $activateUrl,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] 会員登録のご確認')
-            ->setFrom(array($this->BaseInfo->getEmail03() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Customer->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Customer->getEmail(), '会員登録のご確認', $body);
 
         $event = new EventArgs(
             array(
@@ -331,14 +287,7 @@ class MailService
             'Order' => $Order,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] ' . $formData['subject'])
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Order->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Order->getEmail(), $formData['subject'], $body);
 
         $event = new EventArgs(
             array(
@@ -355,7 +304,7 @@ class MailService
 
         log_info('受注管理通知メール送信完了', array('count' => $count));
 
-        return $count;
+        return $message;
     }
 
     /**
@@ -372,14 +321,7 @@ class MailService
             'reset_url' => $reset_url
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] パスワード変更のご確認')
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Customer->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Customer->getEmail(), 'パスワード変更のご確認', $body);
 
         $event = new EventArgs(
             array(
@@ -413,14 +355,7 @@ class MailService
             'password' => $password,
         ));
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject('[' . $this->BaseInfo->getShopName() . '] パスワード変更のお知らせ')
-            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
-            ->setTo(array($Customer->getEmail()))
-            ->setBcc($this->BaseInfo->getEmail01())
-            ->setReplyTo($this->BaseInfo->getEmail03())
-            ->setReturnPath($this->BaseInfo->getEmail04())
-            ->setBody($body);
+        $message = $this->createMailMessage($Customer->getEmail(), 'パスワード変更のお知らせ', $body);
 
         $event = new EventArgs(
             array(
@@ -438,6 +373,26 @@ class MailService
         log_info('パスワード変更完了メール送信完了', array('count' => $count));
 
         return $count;
+    }
+
+    /**
+     * @param string $mailTo
+     * @param string $subject
+     * @param string $body
+     * @return \Swift_Mime_MimePart
+     */
+    private function createMailMessage($mailTo, $subject, $body)
+    {
+        $message = \Swift_Message::newInstance()
+            ->setSubject('[' . $this->BaseInfo->getShopName() . '] ' . $subject)
+            ->setFrom(array($this->BaseInfo->getEmail01() => $this->BaseInfo->getShopName()))
+            ->setTo(array($mailTo))
+            ->setBcc($this->BaseInfo->getEmail01())
+            ->setReplyTo($this->BaseInfo->getEmail03())
+            ->setReturnPath($this->BaseInfo->getEmail04())
+            ->setBody($body);
+
+        return $message;
     }
 
 }

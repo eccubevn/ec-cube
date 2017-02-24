@@ -119,19 +119,18 @@ class MailController
                         ));
                         break;
                     case 'complete':
-
                         $data = $form->getData();
-                        $body = $this->createBody($app, $data['header'], $data['footer'], $Order);
 
                         // メール送信
-                        $app['eccube.service.mail']->sendAdminOrderMail($Order, $data);
+                        /** @var $message \Swift_Message*/
+                        $message = $app['eccube.service.mail']->sendAdminOrderMail($Order, $data);
 
                         // 送信履歴を保存.
                         $MailTemplate = $form->get('template')->getData();
                         $MailHistory = new MailHistory();
                         $MailHistory
-                            ->setSubject($data['subject'])
-                            ->setMailBody($body)
+                            ->setSubject($message->getSubject())
+                            ->setMailBody($message->getBody())
                             ->setMailTemplate($MailTemplate)
                             ->setSendDate(new \DateTime())
                             ->setOrder($Order);
