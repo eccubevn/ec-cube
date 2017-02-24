@@ -208,6 +208,36 @@ class ShoppingControllerTest extends AbstractShoppingControllerTestCase
     }
 
     /**
+     * 購入確認画面→お届け先の設定→お届け先の追加
+     */
+    public function testShippingEdit()
+    {
+        $faker = $this->getFaker();
+        $client = $this->client;
+        $Customer = $this->logIn();
+        $this->scenarioCartIn($client);
+        $crawler = $this->scenarioConfirm($client);
+        // お届け先設定画面への遷移前チェック
+        //get shopping url
+        $shipping_url = $crawler->filter('a.btn-shipping')->attr('href');
+        //gets shopping html code
+        $shipping_url = str_replace('shipping_change', 'shipping', $shipping_url);
+        //get shipping edit html code
+        $crawler = $client->request(
+            'GET',
+            $shipping_url
+        );
+        //get shipping edit url
+        $shipping_edit_change_url = $crawler->filter('a.btn-shipping-edit')->attr('href');
+        // お届け先設定画面へ遷移
+        $crawler = $client->request('GET', $shipping_edit_change_url);
+        $this->assertTrue($client->getResponse()->isSuccessful());
+        $this->expected = 'お届け先の追加';
+        $this->actual = $crawler->filter('h1.page-heading')->text();
+        $this->verify();
+    }
+    
+    /**
      * 購入確認画面→支払い方法選択
      */
     public function testPaymentWithPost()

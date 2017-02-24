@@ -696,6 +696,14 @@ class ShoppingController extends AbstractController
      */
     public function shippingEdit(Application $app, Request $request, $id)
     {
+        //check is member or not and set header title
+        if ($app->isGranted('ROLE_USER')) {
+            //is member
+            $title = "お届け先の追加";
+        } else {
+            //non member
+            $title = "お届け先の変更";
+        }
         // 配送先住所最大値判定
         $Customer = $app->user();
         if ($app->isGranted('IS_AUTHENTICATED_FULLY')) {
@@ -793,6 +801,7 @@ class ShoppingController extends AbstractController
         return $app->render('Shopping/shipping_edit.twig', array(
             'form' => $form->createView(),
             'shippingId' => $id,
+            'title' => $title,
         ));
     }
 
