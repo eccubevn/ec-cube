@@ -113,6 +113,9 @@ class ShoppingService
         if (is_null($nonMember)) {
             return null;
         }
+        if (!array_key_exists('customer', $nonMember) || !array_key_exists('pref', $nonMember)) {
+            return null;
+        }
 
         $Customer = $nonMember['customer'];
         $Customer->setPref($this->app['eccube.repository.master.pref']->find($nonMember['pref']));
@@ -788,8 +791,6 @@ class ShoppingService
                     // @deprecated 3.1以降ではexceptionをthrowする
                     // throw new ShoppingException('cart.over.stock');
                     return false;
-                } elseif ($orderDetail->getQuantity() > $productStock->getStock()) {
-                    throw new ShoppingException('cart.over.stock');
                 }
             }
         }
