@@ -246,11 +246,10 @@ class MailController
                     $form->get('header')->setData($MailTemplate->getHeader());
                     $form->get('footer')->setData($MailTemplate->getFooter());
                 }
-            } else if ($form->isValid()) {
+            } elseif ($form->isValid()) {
                 switch ($mode) {
                     case 'confirm':
                         // フォームをFreezeして再生成.
-
                         $builder->setAttribute('freeze', true);
                         $builder->setAttribute('freeze_display_text', true);
 
@@ -291,26 +290,22 @@ class MailController
                         break;
 
                     case 'complete':
-
                         $data = $form->getData();
-
                         $ids = explode(',', $ids);
 
                         foreach ($ids as $value) {
-
                             $Order = $app['eccube.repository.order']->find($value);
 
-                            $body = $this->createBody($app, $data['header'], $data['footer'], $Order);
-
                             // メール送信
-                            $app['eccube.service.mail']->sendAdminOrderMail($Order, $data);
+                            /** @var $message \Swift_Message */
+                            $message = $app['eccube.service.mail']->sendAdminOrderMail($Order, $data);
 
                             // 送信履歴を保存.
                             $MailTemplate = $form->get('template')->getData();
                             $MailHistory = new MailHistory();
                             $MailHistory
-                                ->setSubject($data['subject'])
-                                ->setMailBody($body)
+                                ->setSubject($message->getSubject())
+                                ->setMailBody($message->getBody())
                                 ->setMailTemplate($MailTemplate)
                                 ->setSendDate(new \DateTime())
                                 ->setOrder($Order);
@@ -351,7 +346,6 @@ class MailController
             'ids' => $ids,
         ));
     }
-
 
     private function createBody($app, $header, $footer, $Order)
     {
