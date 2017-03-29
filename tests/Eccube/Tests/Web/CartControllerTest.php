@@ -46,6 +46,26 @@ class CartControllerTest extends AbstractWebTestCase
         $this->assertTrue($this->client->getResponse()->isRedirection());
     }
 
+    public function testRoutingCartUpWithLimit()
+    {
+        $this->client->request('POST', '/cart/add', array('product_class_id' => 10));
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $this->client->request('PUT', '/cart/up/10');
+        $crawler = $this->client->followRedirect();
+        $errorMeg = $crawler->filter("p.errormsg");
+        $this->assertContains("選択された商品(パーコレーター)の在庫が不足しております。", $errorMeg->html());
+        //count message error
+        $this->expected = 1;
+        $this->actual = count($errorMeg);
+        $this->verify();
+    }
+
     public function testRoutingCartDown()
     {
         $this->client->request('PUT', '/cart/down/1');
