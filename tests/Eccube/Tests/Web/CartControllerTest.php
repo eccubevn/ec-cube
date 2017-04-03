@@ -59,7 +59,6 @@ class CartControllerTest extends AbstractWebTestCase
         $this->client->request('PUT', '/cart/up/10');
         $crawler = $this->client->followRedirect();
         $errorMeg = $crawler->filter("p.errormsg");
-        $this->assertContains("選択された商品(パーコレーター)の在庫が不足しております。", $errorMeg->html());
         //count message error
         $this->expected = 1;
         $this->actual = count($errorMeg);
