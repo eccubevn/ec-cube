@@ -136,7 +136,7 @@ class ForgotController extends AbstractController
                 $Customer = $app['eccube.repository.customer']
                     ->getActiveCustomerByResetKey($reset_key);
             } catch (\Exception $e) {
-                throw new HttpException\NotFoundHttpException('有効期限が切れているか、無効なURLです。');
+                throw new HttpException\GoneHttpException('※ 有効期限が切れているか、無効なURLです。');
             }
 
             // パスワードの発行・更新
@@ -172,10 +172,9 @@ class ForgotController extends AbstractController
                 'reset password complete:' . "{$Customer->getId()} {$Customer->getEmail()} {$request->getClientIp()}"
             );
         } else {
-            throw new HttpException\AccessDeniedHttpException('不正なアクセスです。');
+            throw new HttpException\AccessDeniedHttpException('※ 不正なアクセスです。');
         }
 
         return $app->render('Forgot/reset.twig');
     }
-
 }
