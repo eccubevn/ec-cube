@@ -201,4 +201,29 @@ class DeliveryControllerTest extends AbstractWebTestCase
         $this->actual = $this->app['session']->getFlashBag()->get('eccube.front.error');
         $this->verify();
     }
+
+    public function testEditRender()
+    {
+        // Give
+        $this->logIn($this->Customer);
+        $client = $this->client;
+
+        $CustomerAddress = $this->app['eccube.repository.customer_address']->findOneBy(
+            array('Customer' => $this->Customer)
+        );
+
+        // When
+        $crawler = $client->request(
+            'GET',
+            $this->app->path('mypage_delivery_edit', array('id' => $CustomerAddress->getId()))
+        );
+
+        // Then
+        $this->assertTrue($client->getResponse()->isSuccessful());
+        $BaseInfo = $this->app['eccube.repository.base_info']->get();
+        $header = $crawler->filter('header')->text();
+        $this->assertContains($BaseInfo->getShopName(), $header);
+        $footer = $crawler->filter('footer')->text();
+        $this->assertContains($BaseInfo->getShopName(), $footer);
+    }
 }
