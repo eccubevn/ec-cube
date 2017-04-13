@@ -1011,8 +1011,15 @@ class ShoppingService
 
             // 配送業者をセット
             $shippings = $Order->getShippings();
-            $Shipping = $shippings[0];
-            $payments = $this->app['eccube.repository.payment']->findPayments($Shipping->getDelivery(), true);
+            $payments = [];
+            foreach($shippings as $Shipping){
+                $paymentsShip = $this->app['eccube.repository.payment']->findPayments($Shipping->getDelivery(), true);
+                if(!$payments){
+                    $payments = $paymentsShip;
+                }else {
+                    $payments = array_intersect($payments, $paymentsShip );
+                }
+            }
 
         }
         $payments = $this->getPayments($payments, $Order->getSubTotal());
