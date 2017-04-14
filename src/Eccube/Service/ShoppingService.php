@@ -1011,7 +1011,7 @@ class ShoppingService
 
             // 配送業者をセット
             $shippings = $Order->getShippings();
-            $payments = [];
+            $payments = array();
             foreach($shippings as $Shipping){
                 $paymentsShip = $this->app['eccube.repository.payment']->findPayments($Shipping->getDelivery(), true);
                 if(!$payments){
