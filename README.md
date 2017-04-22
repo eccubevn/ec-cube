@@ -22,13 +22,6 @@
 ### [EC-CUBE 3.xのインストール方法](http://ec-cube.github.io/quickstart_install)
 
 
-### 動作確認環境
-
-* Apache/2.2.15 (Unix)
-* PHP5.4.14
-* PostgreSQL 9.2.1   
-* ブラウザー：Google Chrome  
-
 ## ドキュメント
 
 ### [EC-CUBE 3.x 開発ドキュメント@ec-cube.github.io](http://ec-cube.github.io/)
