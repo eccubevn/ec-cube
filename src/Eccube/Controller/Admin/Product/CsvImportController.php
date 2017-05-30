@@ -37,6 +37,7 @@ use Eccube\Exception\CsvImportException;
 use Eccube\Service\CsvImportService;
 use Eccube\Util\Str;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -60,20 +61,18 @@ class CsvImportController
      */
     public function csvProduct(Application $app, Request $request)
     {
+        /** @var $form FormInterface*/
         $form = $app['form.factory']->createBuilder('admin_csv_import')->getForm();
 
         $headers = $this->getProductCsvHeader();
 
         if ('POST' === $request->getMethod()) {
-
             $form->handleRequest($request);
 
             if ($form->isValid()) {
-
                 $formFile = $form['import_file']->getData();
 
                 if (!empty($formFile)) {
-
                     log_info('商品CSV登録開始');
 
                     $data = $this->getImportData($app, $formFile);
@@ -83,9 +82,20 @@ class CsvImportController
                     }
 
                     $keys = array_keys($headers);
+
+                    // Checking the header for the data column flexible.
+                    $compareKey = $keys;
                     $columnHeaders = $data->getColumnHeaders();
-                    if ($keys !== $columnHeaders) {
+                    $arrDiff = array_values(array_diff($compareKey, $columnHeaders));
+                    $arrHeaderException = array(
+                        '商品削除フラグ',
+                        '送料',
+                        '商品規格削除フラグ',
+                    );
+
+                    if (count(array_diff($arrDiff, $arrHeaderException)) > 0) {
                         $this->addErrors('CSVのフォーマットが一致しません。');
+
                         return $this->render($app, $form, $headers, $this->productTwig);
                     }
 
@@ -95,23 +105,12 @@ class CsvImportController
                         return $this->render($app, $form, $headers, $this->productTwig);
                     }
 
-                    $headerSize = count($keys);
-
                     $this->em = $app['orm.em'];
                     $this->em->getConfiguration()->setSQLLogger(null);
-
                     $this->em->getConnection()->beginTransaction();
-
-                    $BaseInfo = $app['eccube.repository.base_info']->get();
 
                     // CSVファイルの登録処理
                     foreach ($data as $row) {
-
-                        if ($headerSize != count($row)) {
-                            $this->addErrors(($data->key() + 1) . '行目のCSVフォーマットが一致しません。');
-                            return $this->render($app, $form, $headers, $this->productTwig);
-                        }
-
                         if ($row['商品ID'] == '') {
                             $Product = new Product();
                             $this->em->persist($Product);
@@ -181,13 +180,14 @@ class CsvImportController
                             $Product->setFreeArea(null);
                         }
 
-                        if ($row['商品削除フラグ'] == '') {
+                        if (Str::isBlank($row['商品削除フラグ'])) {
                             $Product->setDelFlg(Constant::DISABLED);
                         } else {
                             if ($row['商品削除フラグ'] == (string)Constant::DISABLED || $row['商品削除フラグ'] == (string)Constant::ENABLED) {
                                 $Product->setDelFlg($row['商品削除フラグ']);
                             } else {
                                 $this->addErrors(($data->key() + 1) . '行目の商品削除フラグが設定されていません。');
+
                                 return $this->render($app, $form, $headers, $this->productTwig);
                             }
                         }
@@ -208,19 +208,16 @@ class CsvImportController
                         if ($ProductClasses->count() < 1) {
                             // 規格分類1(ID)がセットされていると規格なし商品、規格あり商品を作成
                             $ProductClassOrg = $this->createProductClass($row, $Product, $app, $data);
-                            if ($BaseInfo->getOptionProductDeliveryFee() == Constant::ENABLED) {
-                                if ($row['送料'] != '') {
-                                    $deliveryFee = str_replace(',', '', $row['送料']);
-                                    if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
-                                        $ProductClassOrg->setDeliveryFee($deliveryFee);
-                                    } else {
-                                        $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
-                                    }
+                            if (Str::isNotBlank($row['送料'])) {
+                                $deliveryFee = str_replace(',', '', $row['送料']);
+                                if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
+                                    $ProductClassOrg->setDeliveryFee($deliveryFee);
+                                } else {
+                                    $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
                                 }
                             }
 
                             if ($row['規格分類1(ID)'] != '') {
-
                                 if ($row['規格分類1(ID)'] == $row['規格分類2(ID)']) {
                                     $this->addErrors(($data->key() + 1) . '行目の規格分類1(ID)と規格分類2(ID)には同じ値を使用できません。');
                                 } else {
@@ -294,14 +291,12 @@ class CsvImportController
                                 ) {
                                     $this->updateProductClass($row, $Product, $pc, $app, $data);
 
-                                    if ($BaseInfo->getOptionProductDeliveryFee() == Constant::ENABLED) {
-                                        if ($row['送料'] != '') {
-                                            $deliveryFee = str_replace(',', '', $row['送料']);
-                                            if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
-                                                $pc->setDeliveryFee($deliveryFee);
-                                            } else {
-                                                $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
-                                            }
+                                    if (Str::isNotBlank($row['送料'])) {
+                                        $deliveryFee = str_replace(',', '', $row['送料']);
+                                        if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
+                                            $pc->setDeliveryFee($deliveryFee);
+                                        } else {
+                                            $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
                                         }
                                     }
 
@@ -365,41 +360,31 @@ class CsvImportController
                                     }
                                     $ProductClass = $this->createProductClass($row, $Product, $app, $data, $ClassCategory1, $ClassCategory2);
 
-                                    if ($BaseInfo->getOptionProductDeliveryFee() == Constant::ENABLED) {
-                                        if ($row['送料'] != '') {
-                                            $deliveryFee = str_replace(',', '', $row['送料']);
-                                            if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
-                                                $ProductClass->setDeliveryFee($deliveryFee);
-                                            } else {
-                                                $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
-                                            }
+                                    if (Str::isNotBlank($row['送料'])) {
+                                        $deliveryFee = str_replace(',', '', $row['送料']);
+                                        if (preg_match('/^\d+$/', $deliveryFee) && $deliveryFee >= 0) {
+                                            $ProductClass->setDeliveryFee($deliveryFee);
+                                        } else {
+                                            $this->addErrors(($data->key() + 1) . '行目の送料は0以上の数値を設定してください。');
                                         }
                                     }
-
                                     $Product->addProductClass($ProductClass);
                                 }
-
                             }
-
                         }
-
 
                         if ($this->hasErrors()) {
                             return $this->render($app, $form, $headers, $this->productTwig);
                         }
-
                         $this->em->persist($Product);
-
                     }
 
                     $this->em->flush();
                     $this->em->getConnection()->commit();
 
                     log_info('商品CSV登録完了');
-
                     $app->addSuccess('admin.product.csv_import.save.complete', 'admin');
                 }
-
             }
         }
 
@@ -909,7 +894,7 @@ class CsvImportController
             }
         }
 
-        if ($row['送料'] != '') {
+        if (Str::isNotBlank($row['送料'])) {
             $delivery_fee = str_replace(',', '', $row['送料']);
             if (preg_match('/^\d+$/', $delivery_fee) && $delivery_fee >= 0) {
                 $ProductClass->setDeliveryFee($delivery_fee);
@@ -918,7 +903,7 @@ class CsvImportController
             }
         }
 
-        if ($row['商品規格削除フラグ'] == '') {
+        if (Str::isBlank($row['商品規格削除フラグ'])) {
             $ProductClass->setDelFlg(Constant::DISABLED);
         } else {
             if ($row['商品規格削除フラグ'] == (string) Constant::DISABLED || $row['商品規格削除フラグ'] == (string) Constant::ENABLED) {
@@ -1071,7 +1056,7 @@ class CsvImportController
             }
         }
 
-        if ($row['商品規格削除フラグ'] == '') {
+        if (Str::isBlank($row['商品規格削除フラグ'])) {
             $ProductClass->setDelFlg(Constant::DISABLED);
         } else {
             if ($row['商品規格削除フラグ'] == (string) Constant::DISABLED || $row['商品規格削除フラグ'] == (string) Constant::ENABLED) {

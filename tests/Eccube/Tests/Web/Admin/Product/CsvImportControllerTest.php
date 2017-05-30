@@ -403,6 +403,88 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
     }
 
     /**
+     * Test import product with column csv is miss
+     */
+    public function testImportProductWithMissColumnCheck()
+    {
+        $this->filepath = __DIR__.'/products_column_missing.csv';
+        copy(__DIR__.'/../../../../../Fixtures/products_column_missing.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+        $this->expected = count($Products);
+
+        // csv missing id column
+        $csv = $this->createCsvAsArray();
+        unset($csv[0][0]);
+        unset($csv[1][0]);
+
+        $this->filepath = $this->createCsvFromArray($csv, 'products_column_missing.csv');
+
+        $crawler = $this->scenario('admin_product_csv_import', 'products_column_missing.csv');
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+
+        $this->actual = count($Products);
+        $this->verify();
+
+        $this->assertRegexp('/CSVのフォーマットが一致しません。/u', $crawler->filter('div#upload_file_box__body')->text());
+    }
+
+    /**
+     * Test import product with mixing column csv.
+     */
+    public function testImportProductWithFlexibleColumn()
+    {
+        $this->filepath = __DIR__.'/products_column_mixed.csv';
+        copy(__DIR__.'/../../../../../Fixtures/products_column_mixed.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+        $this->expected = count($Products) +1;
+
+        // 1 product
+        $csv = $this->createCsvAsArray();
+
+        $this->filepath = $this->createCsvFromArray($csv, 'products_column_mixed.csv');
+
+        $crawler = $this->scenario('admin_product_csv_import', 'products_column_mixed.csv');
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+
+        $this->actual = count($Products);
+        $this->verify();
+
+        // ProductCategoryTest
+        //カテゴリーIDs
+        foreach ($csv as $csvRow) {
+            $csvCat[md5($csvRow[2])] = $csvRow[10];
+        }
+        foreach ($Products as $Product) {
+            $nameHash = md5($Product->getName());
+            if (!isset($csvCat[$nameHash])) {
+                continue;
+            }
+            // expected categories is
+            $expectedIds = $this->getExpectedCategoriesIdList($csvCat[$nameHash]);
+            $actualIds = array();
+            /* @var $Product \Eccube\Entity\Product */
+            foreach ($Product->getProductCategories() as $ProductCategory) {
+                /* @var $ProductCategory \Eccube\Entity\ProductCategory */
+                $actualIds[$ProductCategory->getCategoryId()] = $ProductCategory->getCategoryId();
+                $this->expected = $expectedIds[$ProductCategory->getCategoryId()];
+                $this->actual = $ProductCategory->getCategoryId();
+                $this->verify();
+            }
+            foreach ($expectedIds as $catId) {
+                $this->expected = $catId;
+                $this->actual = $actualIds[$catId];
+                $this->verify();
+            }
+        }
+
+        $this->assertRegexp('/商品登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
+    }
+
+    /**
      * $this->filepath のファイルを CSV アップロードし, 完了画面の crawler を返す.
      */
     public function scenario($bind = 'admin_product_csv_import', $original_name = 'products.csv')

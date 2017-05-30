@@ -99,6 +99,7 @@ $(function() {
             <div id="file_format_box__head" class="box-header">
                 <a href="{{ url('admin_product_csv_template', {'type': 'product'}) }}" id="download-button" class="btn btn-default pull-right btn-xs">雛形ファイルダウンロード</a>
                 <h3 class="box-title">商品登録CSVファイルフォーマット</h3>
+                <p class="help-block">「*」の列を除去することができます。</p>
             </div><!-- /.box-header -->
             <div id="file_format_box__body_inner" class="box-body no-padding">
                 <div id="file_format_box__list_box" class="table_list">
@@ -107,7 +108,8 @@ $(function() {
                             <thead>
                                 <tr id="file_format_box__header" class="text-nowrap">
                                     {% for header in headers|keys %}
-                                        <th id="file_format_box__header--{{ loop.index }}">{{ header }}</th>
+                                        {% set header_exception = ['商品削除フラグ', '送料', '商品規格削除フラグ'] %}
+                                        <th id="file_format_box__header--{{ loop.index }}">{{ header }} {% if header in header_exception %}*{% endif %}</th>
                                     {% endfor %}
                                 </tr>
                             </thead>
