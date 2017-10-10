@@ -3,6 +3,7 @@
 namespace Eccube\Tests\Web\Admin\Product;
 
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
+use Faker\Generator;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CsvImportControllerTest extends AbstractAdminWebTestCase
@@ -21,9 +22,16 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
 
     public function tearDown()
     {
-        if (file_exists($this->filepath)) {
-            unlink($this->filepath);
+        $productPath = __DIR__.'/products.csv';
+        if (file_exists($productPath)) {
+            unlink($productPath);
         }
+
+        $categoryPath = __DIR__.'/categories.csv';
+        if (file_exists($categoryPath)) {
+            unlink($categoryPath);
+        }
+
         parent::tearDown();
     }
 
@@ -348,6 +356,13 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 
+    //======================================================================
+    // CATEGORY Import Test
+    //======================================================================
+
+    /**
+     * Import csv test
+     */
     public function testCsvCategory()
     {
         $this->filepath = __DIR__.'/categories.csv';
@@ -361,15 +376,17 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         $this->actual = count($Categories);
         $this->verify();
 
-        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u',
-            $crawler->filter('div.alert-success')->text());
+        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
     }
 
+    /**
+     * Import new csv test
+     */
     public function testCsvCategoryWithNew()
     {
         $csv = array(
-            array('カテゴリID', 'カテゴリ名', '親カテゴリID'),
-            array('', '新カテゴリ', '')
+            array('カテゴリID', '表示ランク', 'カテゴリ名', '親カテゴリID', '階層'),
+            array('', '', '新カテゴリ', '', '')
         );
         $this->filepath = $this->createCsvFromArray($csv, 'categories.csv');
 
@@ -381,9 +398,122 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         $this->actual = count($Categories);
         $this->verify();
 
-        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u',
-            $crawler->filter('div.alert-success')->text());
+        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
     }
+
+    /**
+     * Import only exist category name.
+     */
+    public function testCsvCategoryWithOnlyCategoryName()
+    {
+        $this->filepath = __DIR__.'/categories.csv';
+        copy(__DIR__.'/../../../../../Fixtures/categories.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        $csv = array(
+            array('カテゴリ名'),
+            array('新カテゴリ')
+        );
+        $this->filepath = $this->createCsvFromArray($csv, 'categories.csv');
+
+        $crawler = $this->scenario('admin_product_category_csv_import', 'categories.csv');
+
+        $Categories = $this->app['eccube.repository.category']->findBy(array('name' => '新カテゴリ'));
+
+        $this->expected = 1;
+        $this->actual = count($Categories);
+        $this->verify();
+
+        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
+    }
+
+    /**
+     * Category name is null
+     */
+    public function testCsvCategoryWithCategoryNameIsNull()
+    {
+        $this->filepath = __DIR__.'/categories.csv';
+        copy(__DIR__.'/../../../../../Fixtures/categories.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        $categories = $this->app['eccube.repository.category']->findAll();
+        $this->expected = count($categories);
+
+        $csv = array(
+            array('カテゴリID','カテゴリ名'),
+            array('',null)
+        );
+        $this->filepath = $this->createCsvFromArray($csv, 'categories.csv');
+
+        $crawler = $this->scenario('admin_product_category_csv_import', 'categories.csv');
+
+        $arrCategory = $this->app['eccube.repository.category']->findAll();
+        $this->actual = count($arrCategory);
+        $this->verify();
+
+        $this->assertRegexp('/2行目のカテゴリ名が設定されていません。/u', $crawler->filter('div#upload_box__body')->text());
+    }
+
+    /**
+     * Import do not exist category name column.
+     */
+    public function testCsvCategoryWithoutCategoryNameColumn()
+    {
+        $this->filepath = __DIR__.'/categories.csv';
+        copy(__DIR__.'/../../../../../Fixtures/categories.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        $categories = $this->app['eccube.repository.category']->findAll();
+        $this->expected = count($categories);
+
+        $csv = array(
+            array('カテゴリID'),
+            array('')
+        );
+        $this->filepath = $this->createCsvFromArray($csv, 'categories.csv');
+
+        $crawler = $this->scenario('admin_product_category_csv_import', 'categories.csv');
+
+        $arrCategory = $this->app['eccube.repository.category']->findAll();
+        $this->actual = count($arrCategory);
+        $this->verify();
+
+        $this->assertRegexp('/CSVのフォーマットが一致しません。/u', $crawler->filter('div#upload_box__body')->text());
+    }
+
+    /**
+     * Testing the column was mixed.
+     */
+    public function testCsvCategoryWithColumnSorted()
+    {
+        $this->filepath = __DIR__.'/categories.csv';
+        copy(__DIR__.'/../../../../../Fixtures/categories.csv', $this->filepath); // 削除されてしまうのでコピーしておく
+
+        /** @var $faker \Faker\Generator */
+        $faker = $this->getFaker();
+        $categoryName = 'CategoryNameTest';
+        $rank = $faker->randomNumber(5);
+        $csv = array(
+            array('カテゴリ名','カテゴリID','表示ランク'),
+            array($categoryName,'',$rank)
+        );
+        $this->filepath = $this->createCsvFromArray($csv, 'categories.csv');
+
+        $crawler = $this->scenario('admin_product_category_csv_import', 'categories.csv');
+
+        $arrCategory = $this->app['eccube.repository.category']->findBy(array('name' => $categoryName));
+        $this->actual = count($arrCategory);
+        $this->expected = 1;
+        $this->verify();
+
+        $this->assertRegexp('/カテゴリ登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
+
+        $category = array_shift($arrCategory);
+        $this->actual = $category->getRank();
+        $this->expected = $rank;
+        $this->verify();
+    }
+
+//======================================================================
+//    CSV export template test
+//======================================================================
 
     public function testCsvTemplateWithCategory()
     {
@@ -392,7 +522,7 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         $config['csv_export_encoding'] = 'UTF-8'; // SJIS だと比較できないので UTF-8 に変更しておく
         $this->app['config'] = $config;
 
-        $this->expectOutputString('カテゴリID,カテゴリ名,親カテゴリID'."\n");
+        $this->expectOutputString('カテゴリID,表示ランク,カテゴリ名,親カテゴリID,階層'."\n");
 
         $crawler = $this->client->request(
             'GET',
@@ -400,6 +530,167 @@ class CsvImportControllerTest extends AbstractAdminWebTestCase
         );
 
         $this->assertTrue($this->client->getResponse()->isSuccessful());
+    }
+
+
+//======================================================================
+//    CSV import product test
+//======================================================================
+
+    /**
+     * Check the imported products with csv column is missed
+     */
+    public function testImportProductWithColumnIsMissed()
+    {
+        $Products = $this->app['eccube.repository.product']->findAll();
+        $this->expected = count($Products) + 1;
+
+        // csv missing id column
+        $csv = $this->createCsvAsArray();
+        unset($csv[0][0]);
+        unset($csv[1][0]);
+
+        $this->filepath = $this->createCsvFromArray($csv);
+
+        $crawler = $this->scenario();
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+
+        $this->actual = count($Products);
+        $this->verify();
+
+        // ProductCategoryTest
+        //カテゴリーIDs
+        foreach ($csv as $csvRow) {
+            $csvCat[md5($csvRow[2])] = $csvRow[10];
+        }
+        foreach ($Products as $Product) {
+            $nameHash = md5($Product->getName());
+            if (!isset($csvCat[$nameHash])) {
+                continue;
+            }
+            // expected categories is
+            $expectedIds = $this->getExpectedCategoriesIdList($csvCat[$nameHash]);
+            $actualIds = array();
+            /* @var $Product \Eccube\Entity\Product */
+            foreach ($Product->getProductCategories() as $ProductCategory) {
+                /* @var $ProductCategory \Eccube\Entity\ProductCategory */
+                $actualIds[$ProductCategory->getCategoryId()] = $ProductCategory->getCategoryId();
+                $this->expected = $expectedIds[$ProductCategory->getCategoryId()];
+                $this->actual = $ProductCategory->getCategoryId();
+                $this->verify();
+            }
+            foreach ($expectedIds as $catId) {
+                $this->expected = $catId;
+                $this->actual = $actualIds[$catId];
+                $this->verify();
+            }
+        }
+
+        $this->assertRegexp('/商品登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
+    }
+
+    /**
+     * Imported products tested with just the column is required.
+     */
+    public function testImportProductWithColumnIsRequiredOnly()
+    {
+        $Products = $this->app['eccube.repository.product']->findAll();
+        $this->expected = count($Products) +1;
+
+        /** @var $faker Generator*/
+        $faker = $this->getFaker();
+        // 1 product
+        $csv[] = array('公開ステータス(ID)', '商品名', '商品種別(ID)', '在庫数無制限フラグ', '販売価格');
+        $csv[] = array(1,  "商品名".$faker->word."商品名", 1, 1, $faker->randomNumber(5));
+
+        $this->filepath = $this->createCsvFromArray($csv);
+
+        $crawler = $this->scenario();
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+
+        $this->actual = count($Products);
+        $this->verify();
+
+        $this->assertRegexp('/商品登録CSVファイルをアップロードしました。/u', $crawler->filter('div.alert-success')->text());
+    }
+
+    /**
+     * Imported product ID is incorrect.
+     *
+     * @param $id
+     * @param $expectedMessage
+     * @dataProvider dataProductIdProvider
+     */
+    public function testImportProductWithIdIsWrong($id, $expectedMessage)
+    {
+        $Products = $this->app['eccube.repository.product']->findAll();
+        $this->expected = count($Products);
+
+        // 1 product
+        $csv = $this->createCsvAsArray();
+        $csv[1][0] = $id;
+
+        $this->filepath = $this->createCsvFromArray($csv);
+
+        $crawler = $this->scenario();
+
+        $Products = $this->app['eccube.repository.product']->findAll();
+
+        $this->actual = count($Products);
+        $this->verify();
+
+        $this->assertRegexp("/$expectedMessage/u", $crawler->filter('div#upload_file_box__body_inner')->text());
+    }
+
+    /**
+     * Imported product status flg is incorrect.
+     *
+     * @param $status
+     * @param $expectedMessage
+     * @dataProvider dataStatusProvider
+     */
+    public function testImportProductWithPublicIdIsIncorrect($status, $expectedMessage)
+    {
+        /** @var $faker Generator*/
+        $faker = $this->getFaker();
+        // 1 product
+        $csv[] = array('公開ステータス(ID)', '商品名', '商品種別(ID)', '在庫数無制限フラグ', '販売価格');
+        $csv[] = array($status,  "商品名".$faker->word."商品名", 1, 1, $faker->randomNumber(5));
+
+        $this->filepath = $this->createCsvFromArray($csv);
+
+        $crawler = $this->scenario();
+
+        $this->assertRegexp("/$expectedMessage/u", $crawler->filter('div#upload_file_box__body_inner')->text());
+    }
+
+    /**
+     * Data for case check product id.
+     *
+     * @return array
+     */
+    public function dataProductIdProvider()
+    {
+        return array(
+            array(99999, '2行目の商品IDが存在しません。'),
+            array('abc', '2行目の商品IDが存在しません。'),
+        );
+    }
+
+    /**
+     * Data for case check product status flg.
+     *
+     * @return array
+     */
+    public function dataStatusProvider()
+    {
+        return array(
+            array(99, '2行目の公開ステータス\(ID\)が存在しません'),
+            array('abc', '2行目の公開ステータス\(ID\)が存在しません'),
+            array('', '2行目の公開ステータス\(ID\)が設定されていません'),
+        );
     }
 
     /**
