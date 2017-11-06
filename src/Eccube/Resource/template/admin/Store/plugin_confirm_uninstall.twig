@@ -59,6 +59,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     </div><!-- .row -->
                 </div><!-- /.box-body 1 -->
 
+                {% if requirePlugins is defined and requirePlugins is not empty %}
+            </div> <!-- end box 1 -->
+
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title">{{ item.name }}と同時に以下のプラグインも削除可能です。</h3>
+                </div><!-- /.box-header -->
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="plugin-block">
+                            <div class="row grid">
+                                {% for plugin in requirePlugins %}
+                                    <div class="col-xs-12 grid-item">
+                                        {% include 'Store/plugin_owners_confirm.twig' with {'item': plugin} only %}
+                                    </div>
+                                {% endfor %}
+                            </div><!-- .row -->
+                        </div><!-- .plugin-block -->
+                    </div><!-- .col-xs-12 -->
+                </div><!-- .row -->
+                {% endif %}
+
                 <div class="box-footer">
                     <div class="row">
                         <div class="col-xs-12">

@@ -664,9 +664,32 @@ class PluginService
      * Check require plugin in enable
      *
      * @param string $pluginCode
-     * @return array
+     * @return array code
      */
     public function findRequirePluginNeedEnable($pluginCode)
+    {
+        return $this->findRequirePlugin($pluginCode, true);
+    }
+    /**
+     * Find the dependent plugins that need to be disabled
+     *
+     * @param string $pluginCode
+     * @return array code
+     */
+    public function findDependentPluginNeedDisable($pluginCode)
+    {
+        return $this->findDependentPlugin($pluginCode, true);
+    }
+
+    /**
+     * Find the plugin that it require.
+     * Check in <PluginCode>/composer.json folder only
+     *
+     * @param string $pluginCode
+     * @param bool   $disableOnly
+     * @return array plugin code
+     */
+    public function findRequirePlugin($pluginCode, $disableOnly = false)
     {
         $dir = $this->appConfig['plugin_realdir'].'/'.$pluginCode;
         $composerFile = $dir.'/composer.json';
@@ -687,9 +710,12 @@ class PluginService
                 // Check plugin of ec-cube only
                 if (strpos($name, self::VENDOR_NAME.'/') !== false) {
                     $requireCode = str_replace(self::VENDOR_NAME.'/', '', $name);
-                    $ret = $this->isEnable($requireCode);
-                    if ($ret) {
-                        continue;
+
+                    if ($disableOnly) {
+                        $ret = $this->isEnable($requireCode);
+                        if ($ret) {
+                            continue;
+                        }
                     }
                     $requires[] = $requireCode;
                 }
@@ -698,24 +724,29 @@ class PluginService
 
         return $requires;
     }
+
     /**
-     * Find the dependent plugins that need to be disabled
+     * Find the other plugin that has requires on it.
+     * Check in both dtb_plugin table and <PluginCode>/composer.json
      *
      * @param string $pluginCode
-     * @return array
+     * @param bool   $enableOnly
+     * @return array plugin code
      */
-    public function findDependentPluginNeedDisable($pluginCode)
+    public function findDependentPlugin($pluginCode, $enableOnly = false)
     {
         $criteria = Criteria::create()
-            ->where(Criteria::expr()->eq('enable', Constant::ENABLED))
-            ->andWhere(Criteria::expr()->neq('code', $pluginCode));
+            ->where(Criteria::expr()->neq('code', $pluginCode));
+        if ($enableOnly) {
+            $criteria->andWhere(Criteria::expr()->eq('enable', Constant::ENABLED));
+        }
 
         /**
-         * @var Plugin[] $enabledPlugins
+         * @var Plugin[] $plugins
          */
-        $enabledPlugins = $this->pluginRepository->matching($criteria);
+        $plugins = $this->pluginRepository->matching($criteria);
         $dependents = [];
-        foreach ($enabledPlugins as $plugin) {
+        foreach ($plugins as $plugin) {
             $dir = $this->appConfig['plugin_realdir'].'/'.$plugin->getCode();
             $fileName = $dir.'/composer.json';
             if (!file_exists($fileName)) {
@@ -728,7 +759,7 @@ class PluginService
                     continue;
                 }
                 if (array_key_exists(self::VENDOR_NAME.'/'.$pluginCode, $json['require'])) {
-                    $dependents[] = $plugin->getName();
+                    $dependents[] = $plugin->getCode();
                 }
             }
         }
@@ -737,9 +768,44 @@ class PluginService
     }
 
     /**
+     * Find the other plugin required and remove it. (cross require in dependency)
+     * Base on self::findDependentPlugin function
+     *
+     * @param array $requirePlugins
+     * @param array $requirePluginCodes reference arrays
+     * @return array $requirePlugins after check require
+     */
+    public function findOtherPluginRequire($requirePlugins, $requirePluginCodes)
+    {
+        foreach ($requirePlugins as $key => $requirePlugin) {
+            $dependents = $this->findDependentPlugin($requirePlugin['product_code']);
+            // Checking plugins depends on it.
+            if (empty($dependents)) {
+                continue;
+            }
+
+            // Checking other plugins not in the reference arrays depends on it.
+            $result = array_diff($dependents, $requirePluginCodes);
+            if (empty($result)) {
+                continue;
+            }
+
+            $index = array_search($requirePlugin['product_code'], $requirePluginCodes);
+            if ($index !== false) {
+                // Reset reference arrays for dependent children
+                unset($requirePluginCodes[$index]);
+            }
+            // Have any other plugin that depend on it
+            unset($requirePlugins[$key]);
+        }
+
+        return $requirePlugins;
+    }
+
+    /**
      * @param $arrPlugin
      * @param $pluginCode
-     * @return false|int|string
+     * @return false|int|string key of plugin
      */
     private function checkPluginExist($arrPlugin, $pluginCode)
     {

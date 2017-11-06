@@ -274,10 +274,24 @@ class OwnerStoreController extends AbstractController
      * @Template("Store/plugin_confirm_uninstall.twig")
      * @param Application $app
      * @param Plugin      $Plugin
-     * @return array
+     * @return array|RedirectResponse
      */
     public function deleteConfirm(Application $app, Plugin $Plugin)
     {
+        // The plugin depends on it
+        $pluginCode = $Plugin->getCode();
+        $depends = $this->pluginService->findDependentPlugin($pluginCode);
+        if (!empty($depends)) {
+            $DependPlugin = $this->pluginRepository->findOneBy(['code' => $depends[0]]);
+            $dependName = $depends[0];
+            if ($DependPlugin) {
+                $dependName = $DependPlugin->getName();
+            }
+            $app->addError($Plugin->getName().'を削除するには、まず'.$dependName.'を削除してください。', 'admin');
+
+            return $app->redirect($app->url('admin_store_plugin'));
+        }
+
         // Owner's store communication
         $url = $this->appConfig['owners_store_url'].'?method=list';
         list($json, $info) = $this->getRequestApi($url, $app);
@@ -292,12 +306,23 @@ class OwnerStoreController extends AbstractController
         }
 
         // Build info
-        $pluginCode = $Plugin->getCode();
         $plugin = $this->pluginService->buildInfo($items, $pluginCode);
         $plugin['id'] = $Plugin->getId();
 
+        // These plugins it requires
+        // Prevent infinity loop: A -> B -> A.
+        $requirePlugins[] = $plugin;
+        $requirePlugins = $this->pluginService->getDependency($items, $plugin, $requirePlugins);
+        $requirePluginCodes = array_column($requirePlugins, 'product_code');
+        // Unset first param is original plugin
+        unset($requirePlugins[0]);
+
+        // Check cross requires on array requirePlugins
+        $requirePlugins = $this->pluginService->findOtherPluginRequire($requirePlugins, $requirePluginCodes);
+
         return [
             'item' => $plugin,
+            'requirePlugins' => $requirePlugins,
         ];
     }
 

@@ -48,6 +48,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactory;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -290,12 +291,12 @@ class PluginController extends AbstractController
         } else {
             $requires = $this->pluginService->findRequirePluginNeedEnable($Plugin->getCode());
             if (!empty($requires)) {
-                $DependPlugin = $this->pluginRepository->findOneBy(['code' => $requires[0]]);
-                $dependName = $requires[0];
-                if ($DependPlugin) {
-                    $dependName = $DependPlugin->getName();
+                $RequirePlugin = $this->pluginRepository->findOneBy(['code' => $requires[0]]);
+                $requireName = $requires[0];
+                if ($RequirePlugin) {
+                    $requireName = $RequirePlugin->getName();
                 }
-                $app->addError($Plugin->getName().'を有効化するためには、先に'.$dependName.'を有効化してください。', 'admin');
+                $app->addError($Plugin->getName().'を有効化するためには、先に'.$requireName.'を有効化してください。', 'admin');
 
                 return $app->redirect($app->url('admin_store_plugin'));
             }
@@ -320,9 +321,13 @@ class PluginController extends AbstractController
         $this->isTokenValid($app);
 
         if ($Plugin->getEnable() == Constant::ENABLED) {
-            $requires = $this->pluginService->findDependentPluginNeedDisable($Plugin->getCode());
-            if (!empty($requires)) {
-                $dependName = $requires[0];
+            $depends = $this->pluginService->findDependentPluginNeedDisable($Plugin->getCode());
+            if (!empty($depends)) {
+                $DependPlugin = $this->pluginRepository->findOneBy(['code' => $depends[0]]);
+                $dependName = $depends[0];
+                if ($DependPlugin) {
+                    $dependName = $DependPlugin->getName();
+                }
                 $app->addError($Plugin->getName().'を無効化するためには、先に'.$dependName.'を無効化してください。', 'admin');
 
                 return $app->redirect($app->url('admin_store_plugin'));
