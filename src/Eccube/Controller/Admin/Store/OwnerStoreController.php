@@ -301,20 +301,20 @@ class OwnerStoreController extends AbstractController
         $plugin = $this->pluginService->buildInfo($items, $pluginCode);
         $plugin['id'] = $Plugin->getId();
 
-        // These plugins it requires
+        // These plugins it requires (depend on it)
         // Prevent infinity loop: A -> B -> A.
-        $requirePlugins[] = $plugin;
-        $requirePlugins = $this->pluginService->getDependency($items, $plugin, $requirePlugins);
-        $requirePluginCodes = array_column($requirePlugins, 'product_code');
+        $dependOnIts[] = $plugin;
+        $dependOnIts = $this->pluginService->getDependency($items, $plugin, $dependOnIts);
+        $dependCodes = array_column($dependOnIts, 'product_code');
         // Unset first param is original plugin
-        unset($requirePlugins[0]);
+        unset($dependOnIts[0]);
 
         // Check cross requires on array requirePlugins
-        $requirePlugins = $this->pluginService->findOtherPluginRequire($requirePlugins, $requirePluginCodes);
+        $dependOnIts = $this->pluginService->findOtherPluginRequire($dependOnIts, $dependCodes);
 
         return [
             'item' => $plugin,
-            'requirePlugins' => $requirePlugins,
+            'requirePlugins' => $dependOnIts,
         ];
     }
 
@@ -340,22 +340,23 @@ class OwnerStoreController extends AbstractController
 
         // These plugins it requires
         // Prevent infinity loop: A -> B -> A.
-        $requirePlugins[] = $plugin;
-        $requirePlugins = $this->pluginService->getDependency($items, $plugin, $requirePlugins);
-        $requirePluginCodes = array_column($requirePlugins, 'product_code');
+        $dependOnIts[] = $plugin;
+        $dependOnIts = $this->pluginService->getDependency($items, $plugin, $dependOnIts);
+        $dependCodes = array_column($dependOnIts, 'product_code');
         // Unset first param is original plugin
-        unset($requirePlugins[0]);
+        unset($dependOnIts[0]);
 
         // Check cross requires on array requirePlugins
-        $requirePlugins = $this->pluginService->findOtherPluginRequire($requirePlugins, $requirePluginCodes);
+        $dependOnIts = $this->pluginService->findOtherPluginRequire($dependOnIts, $dependCodes);
 
         // Disable plugin
-        $codes = array_column($requirePlugins, 'product_code');
+        $codes = array_column($dependOnIts, 'product_code');
         foreach ($codes as $code) {
-            /* @var Plugin $tmpPlugin */
-            $tmpPlugin = $this->pluginRepository->findOneBy(['code' => $code]);
-            if ($tmpPlugin->getEnable() == Constant::ENABLED) {
-                $this->pluginService->disable($tmpPlugin);
+            /* @var Plugin $TmpPlugin */
+            $TmpPlugin = $this->pluginRepository->findOneBy(['code' => $code, 'enable' => Constant::ENABLED]);
+            if ($TmpPlugin) {
+                $this->pluginService->disable($TmpPlugin);
+                $TmpPlugin = null;
             }
         }
 
