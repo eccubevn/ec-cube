@@ -180,11 +180,7 @@ class OwnerStoreController extends AbstractController
      */
     public function doConfirm(Application $app, Request $request, $id)
     {
-        // Owner's store communication
-        $url = $this->appConfig['owners_store_url'].'?method=list';
-        list($json, $info) = $this->getRequestApi($url, $app);
-        $data = json_decode($json, true);
-        $items = $data['item'];
+        $items = $this->getPluginData($app);
 
         // Find plugin in api
         $index = array_search($id, array_column($items, 'product_id'));
@@ -280,10 +276,10 @@ class OwnerStoreController extends AbstractController
     {
         // The plugin depends on it
         $pluginCode = $Plugin->getCode();
-        $depends = $this->pluginService->findDependentPlugin($pluginCode);
-        if (!empty($depends)) {
-            $DependPlugin = $this->pluginRepository->findOneBy(['code' => $depends[0]]);
-            $dependName = $depends[0];
+        $otherDepend = $this->pluginService->findDependentPlugin($pluginCode);
+        if (!empty($otherDepend)) {
+            $DependPlugin = $this->pluginRepository->findOneBy(['code' => $otherDepend[0]]);
+            $dependName = $otherDepend[0];
             if ($DependPlugin) {
                 $dependName = $DependPlugin->getName();
             }
@@ -292,11 +288,7 @@ class OwnerStoreController extends AbstractController
             return $app->redirect($app->url('admin_store_plugin'));
         }
 
-        // Owner's store communication
-        $url = $this->appConfig['owners_store_url'].'?method=list';
-        list($json, $info) = $this->getRequestApi($url, $app);
-        $data = json_decode($json, true);
-        $items = $data['item'];
+        $items = $this->getPluginData($app);
 
         // Check plugin in api
         $pluginSource = $Plugin->getSource();
@@ -337,11 +329,40 @@ class OwnerStoreController extends AbstractController
      */
     public function apiUninstall(Application $app, Plugin $Plugin)
     {
+        set_time_limit(0);
         $this->isTokenValid($app);
+        $items = $this->getPluginData($app);
+
+        // Build info
+        $pluginCode = $Plugin->getCode();
+        $plugin = $this->pluginService->buildInfo($items, $pluginCode);
+        $plugin['id'] = $Plugin->getId();
+
+        // These plugins it requires
+        // Prevent infinity loop: A -> B -> A.
+        $requirePlugins[] = $plugin;
+        $requirePlugins = $this->pluginService->getDependency($items, $plugin, $requirePlugins);
+        $requirePluginCodes = array_column($requirePlugins, 'product_code');
+        // Unset first param is original plugin
+        unset($requirePlugins[0]);
+
+        // Check cross requires on array requirePlugins
+        $requirePlugins = $this->pluginService->findOtherPluginRequire($requirePlugins, $requirePluginCodes);
+
+        // Disable plugin
+        $codes = array_column($requirePlugins, 'product_code');
+        foreach ($codes as $code) {
+            /* @var Plugin $tmpPlugin */
+            $tmpPlugin = $this->pluginRepository->findOneBy(['code' => $code]);
+            if ($tmpPlugin->getEnable() == Constant::ENABLED) {
+                $this->pluginService->disable($tmpPlugin);
+            }
+        }
 
         if ($Plugin->getEnable() == Constant::ENABLED) {
             $this->pluginService->disable($Plugin);
         }
+
         $pluginCode = $Plugin->getCode();
 
         /**
@@ -417,5 +438,20 @@ class OwnerStoreController extends AbstractController
         }
 
         return $message;
+    }
+
+    /**
+     * @param Application $app
+     * @return mixed
+     */
+    private function getPluginData(Application $app)
+    {
+        // Owner's store communication
+        $url = $this->appConfig['owners_store_url'].'?method=list';
+        list($json, $info) = $this->getRequestApi($url, $app);
+        $data = json_decode($json, true);
+        $items = $data['item'];
+
+        return $items;
     }
 }
