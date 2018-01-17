@@ -1,6 +1,8 @@
 <?php
 
 namespace Eccube\Tests\Web;
+use Eccube\Common\Constant;
+use Eccube\Entity\Customer;
 use Eccube\Service\CartService;
 
 /**
@@ -12,10 +14,11 @@ use Eccube\Service\CartService;
  */
 abstract class AbstractShoppingControllerTestCase extends AbstractWebTestCase
 {
+    protected $token;
+
     public function setUp()
     {
         parent::setUp();
-        $this->client->enableProfiler();
     }
 
     public function tearDown()
@@ -59,9 +62,15 @@ abstract class AbstractShoppingControllerTestCase extends AbstractWebTestCase
         return $form;
     }
 
-    protected function scenarioCartIn($client, $product_class_id = 1)
+    protected function scenarioCartIn(Customer $Customer = null, $product_class_id = 1)
     {
-        $crawler = $client->request(
+        $token = $this->getCsrfToken(Constant::TOKEN_NAME);
+
+        if ($Customer) {
+            $this->loginTo($Customer);
+        }
+
+        $crawler = $this->client->request(
             'PUT',
             $this->generateUrl(
                 'cart_handle_item',
@@ -69,33 +78,58 @@ abstract class AbstractShoppingControllerTestCase extends AbstractWebTestCase
                     'operation' => 'up',
                     'productClassId' => $product_class_id,
                 ]
-            )
+            ),
+            [Constant::TOKEN_NAME => $token]
         );
         $this->container->get(CartService::class)->lock();
+        $this->container->get(CartService::class)->save();
 
         return $crawler;
     }
 
-    protected function scenarioInput($client, $formData)
+    protected function scenarioInput($formData)
     {
-        $crawler = $client->request(
+        $token = $this->getCsrfToken('nonmember');
+        $formData[Constant::TOKEN_NAME] = $token;
+        $crawler = $this->client->request(
             'POST',
             $this->generateUrl('shopping_nonmember'),
-            array('nonmember' => $formData)
+            ['nonmember' => $formData, '_token' => $token]
         );
         $this->container->get(CartService::class)->lock();
-//        $this->app['eccube.service.cart']->lock();
+        $this->container->get(CartService::class)->save();
         return $crawler;
     }
 
-    protected function scenarioConfirm($client)
+    protected function scenarioConfirm(Customer $Customer)
     {
-        $crawler = $client->request('GET', $this->generateUrl('shopping'));
+        if ($Customer) {
+            $this->loginTo($Customer);
+        }
+        $crawler = $this->client->request('GET', $this->generateUrl('shopping'));
         return $crawler;
     }
 
-    protected function scenarioComplete($client, $confirm_url, array $shippings = array())
+    protected function scenarioRedirectTo(Customer $Cusotmer, $parameters)
     {
+        if ($Cusotmer) {
+            $this->loginTo($Cusotmer);
+        }
+        return $this->client->request(
+            'POST',
+            $this->generateUrl('shopping_redirect_to'),
+            $parameters
+        );
+    }
+
+    protected function scenarioComplete(Customer $Customer, $confirm_url, array $shippings = array())
+    {
+        $token = $this->getCsrfToken('_shopping_order');
+
+        if ($Customer) {
+            $this->loginTo($Customer);
+        }
+
         $faker = $this->getFaker();
         if (count($shippings) < 1) {
             $shippings = array(
@@ -106,7 +140,9 @@ abstract class AbstractShoppingControllerTestCase extends AbstractWebTestCase
             );
         }
 
-        $crawler = $client->request(
+        $this->client->enableProfiler();
+
+        $crawler = $this->client->request(
             'POST',
             $confirm_url,
             array('_shopping_order' =>
@@ -114,7 +150,7 @@ abstract class AbstractShoppingControllerTestCase extends AbstractWebTestCase
                       'Shippings' => $shippings,
                       'Payment' => 3,
                       'message' => $faker->realText(),
-                      '_token' => 'dummy'
+                      '_token' => $token
                   )
             )
         );

@@ -25,7 +25,6 @@ namespace Eccube\Controller;
 
 
 use Eccube\Annotation\Inject;
-use Eccube\Application;
 use Eccube\Entity\ItemHolderInterface;
 use Eccube\Service\PurchaseFlow\PurchaseContext;
 use Eccube\Service\PurchaseFlow\PurchaseFlow;
@@ -85,7 +84,6 @@ class AbstractShoppingController extends AbstractController
     protected $sessionOrderKey = 'eccube.front.shopping.order.id';
 
     /**
-     * @param Application $app
      * @param ItemHolderInterface $itemHolder
      * @return PurchaseFlowResult
      */
