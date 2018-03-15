@@ -29,6 +29,7 @@ use Eccube\Controller\AbstractController;
 use Eccube\Entity\Tag;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
+use Eccube\Form\Type\Admin\ProductTag;
 use Eccube\Repository\TagRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -60,11 +61,49 @@ class TagController extends AbstractController
      * @Route("/%eccube_admin_route%/product/tag/{id}/edit", requirements={"id" = "\d+"}, name="admin_product_tag_edit")
      * @Template("@admin/Product/tag.twig")
      */
-    public function index(Request $request)
+    public function index(Request $request, $id = null)
     {
         $Tags = $this->tagRepository->getList();
+        if ($id) {
+            $Tag = $this->tagRepository->find($id);
+        } else {
+            $Tag = new \Eccube\Entity\Tag();
+        }
+        $builder = $this->formFactory
+            ->createBuilder(ProductTag::class, $Tag);
+        $event = new EventArgs(
+            array(
+                'builder' => $builder,
+                'Tag' => $Tag,
+            ),
+            $request
+        );
+
+        $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_TAG_INDEX_INITIALIZE, $event);
+
+        $form = $builder->getForm();
+        if ($request->getMethod() === 'POST') {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+
+                $this->tagRepository->save($Tag);
+                $event = new EventArgs(
+                    array(
+                        'form' => $form,
+                        'Tag' => $Tag,
+                    ),
+                    $request
+                );
+                $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_TAG_INDEX_COMPLETE, $event);
+
+                $this->addSuccess('admin.tag.save.complete', 'admin');
+                return $this->redirectToRoute('admin_product_tag');
+            }
+        }
 
         return [
+            'form' => $form->createView(),
+            'Tag' => $Tag,
             'Tags' => $Tags,
         ];
     }
@@ -124,23 +163,55 @@ class TagController extends AbstractController
         return true;
     }
 
-    // TODO 新規作成
-    public function new(Request $request)
+    /**
+     * @Method("PUT")
+     * @Route("/%eccube_admin_route%/product/tag/{id}/up", requirements={"id" = "\d+"}, name="admin_product_tag_up")
+     */
+    public function up(Tag $current)
     {
+        $this->isTokenValid();
+
+        $currentSortNo = $current->getSortNo();
+        $targetSortNo = $currentSortNo + 1;
+
+        $target = $this->tagRepository->findOneBy(array('sort_no' => $targetSortNo));
+
+        if ($target) {
+            $this->entityManager->persist($target->setSortNo($currentSortNo));
+            $this->entityManager->persist($current->setSortNo($targetSortNo));
+            $this->entityManager->flush();
+
+            $this->addSuccess('admin.sort_no.move.complete', 'admin');
+        } else {
+            $this->addError('admin.sort_no.up.error', 'admin');
+        }
+
+        return $this->redirectToRoute('admin_product_tag');
     }
 
-    // TODO 更新
-    public function edit(Request $request)
+    /**
+     * @Method("PUT")
+     * @Route("/%eccube_admin_route%/product/tag/{id}/down", requirements={"id" = "\d+"}, name="admin_product_tag_down")
+     */
+    public function down(Tag $current)
     {
-    }
+        $this->isTokenValid();
 
-    // TODO 上へ
-    public function up(Request $request)
-    {
-    }
+        $currentSortNo = $current->getSortNo();
+        $targetSortNo = $currentSortNo - 1;
 
-    // TODO 下へ
-    public function down(Request $request)
-    {
+        $target = $this->tagRepository->findOneBy(array('sort_no' => $targetSortNo));
+
+        if ($target) {
+            $this->entityManager->persist($target->setSortNo($currentSortNo));
+            $this->entityManager->persist($current->setSortNo($targetSortNo));
+            $this->entityManager->flush();
+
+            $this->addSuccess('admin.sort_no.move.complete', 'admin');
+        } else {
+            $this->addError('admin.sort_no.down.error', 'admin');
+        }
+
+        return $this->redirectToRoute('admin_product_tag');
     }
 }
