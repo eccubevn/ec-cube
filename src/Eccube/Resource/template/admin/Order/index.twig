@@ -419,11 +419,39 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                                         <i class="fa fa-table fa-lg text-secondary" aria-hidden="true"></i>
                                                     </a>
                                                 </div>
-                                                <div class="col-auto text-center">
-                                                    {# TODO: This func is not implemented yet #}
-                                                    <a class="btn btn-ec-actionIcon action-delete" href="{{ url('admin_order_delete', { id : Order.id }) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-message="こ{{'admin.order.index.336'|trans}}" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{ 'common.label.delete'|trans }}">
+                                                <div class="col-auto text-center" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{ 'common.label.delete'|trans }}">
+                                                    <a class="btn btn-ec-actionIcon action-delete"  data-toggle="modal"
+                                                       data-target="#discontinuance-{{ Order.id }}" >
                                                         <i class="fa fa-close fa-lg text-secondary" aria-hidden="true"></i>
                                                     </a>
+                                                    <div class="modal fade" id="discontinuance-{{ Order.id }}" tabindex="-1"
+                                                         role="dialog"
+                                                         aria-labelledby="discontinuance-{{ Order.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title font-weight-bold">
+                                                                        {{ 'admin.order.index.modal.header'|trans }}</h5>
+                                                                    <button class="close" type="button"
+                                                                            data-dismiss="modal"
+                                                                            aria-label="Close"><span
+                                                                                aria-hidden="true">×</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body text-left">
+                                                                    <p class="text-left">
+                                                                        {{ 'admin.order.index.modal.content'|trans }}</p>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button class="btn btn-ec-sub" type="button"
+                                                                            data-dismiss="modal">{{ 'common.label.cancel'|trans }}
+                                                                    </button>
+                                                                    <a class="btn btn-ec-delete" href="{{ url('admin_order_delete', {'id' : Order.id}) }}" {{ csrf_token_for_anchor() }}
+                                                                            data-method="delete" data-confirm="false">{{ 'common.label.delete'|trans }}</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
