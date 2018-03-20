@@ -2020,7 +2020,7 @@ return [
     'layout.text.error.not_found' => 'みつかりませんでした',
     'news.text.name' => '',
     'customer.text.name' => '',
-    'order..text.name' => '',
+    'order.text.name' => '注文',
     'category.text.error.no_parent_category' => '親カテゴリが存在しません',
     'category.text.error.no_category' => 'カテゴリが存在しません',
     'category.text.error.invalid_requesy' => 'リクエストが不正です',
