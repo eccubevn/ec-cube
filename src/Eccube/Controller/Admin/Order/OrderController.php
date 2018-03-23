@@ -27,6 +27,7 @@ namespace Eccube\Controller\Admin\Order;
 use Eccube\Common\Constant;
 use Eccube\Controller\AbstractController;
 use Eccube\Entity\Master\CsvType;
+use Eccube\Entity\Order;
 use Eccube\Event\EccubeEvents;
 use Eccube\Event\EventArgs;
 use Eccube\Form\Type\Admin\SearchOrderType;
@@ -277,8 +278,8 @@ class OrderController extends AbstractController
         $page_no = intval($this->session->get('eccube.admin.order.search.page_no'));
         $page_no = $page_no ? $page_no : Constant::ENABLED;
 
-        $Order = $this->orderRepository
-            ->find($id);
+        /** @var Order $Order */
+        $Order = $this->orderRepository->find($id);
 
         if (!$Order) {
             $this->deleteMessage();
@@ -301,6 +302,13 @@ class OrderController extends AbstractController
             return $this->redirect($this->generateUrl('admin_order_page',
                     array('page_no' => $page_no)).'?resume='.Constant::ENABLED);
         }
+
+        $mailHistories = $Order->getMailHistories();
+        foreach ($mailHistories as $mailHistory) {
+            $Order->removeMailHistory($mailHistory);
+            $this->entityManager->remove($mailHistory);
+        }
+        $this->entityManager->flush();
 
         $Customer = $Order->getCustomer();
         $OrderStatusId = $Order->getOrderStatus()->getId();
