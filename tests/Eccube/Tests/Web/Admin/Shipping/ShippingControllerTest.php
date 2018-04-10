@@ -2,14 +2,10 @@
 
 namespace Eccube\Tests\Web\Admin\Shipping;
 
-use Eccube\Entity\Master\CsvType;
-use Eccube\Entity\Master\OrderStatus;
 use Eccube\Entity\Master\ShippingStatus;
 use Eccube\Entity\Shipping;
-use Eccube\Repository\Master\CsvTypeRepository;
-use Eccube\Repository\Master\OrderStatusRepository;
-use Eccube\Repository\Master\SexRepository;
-use Eccube\Repository\PaymentRepository;
+use Eccube\Repository\DeliveryRepository;
+use Eccube\Repository\Master\PrefRepository;
 use Eccube\Repository\ShippingRepository;
 use Eccube\Tests\Web\Admin\AbstractAdminWebTestCase;
 
@@ -27,39 +23,27 @@ class ShippingControllerTest extends AbstractAdminWebTestCase
         parent::setUp();
 
         $this->shippingRepository = $this->container->get(ShippingRepository::class);
+        $Pref = $this->container->get(PrefRepository::class)->find(1);
+        $Delivery = $this->container->get(DeliveryRepository::class)->find(1);
 
         // FIXME: Should remove exist data before generate data for test
-        $this->deleteAllRows(array('dtb_order'));
-
-        $Sex = $this->container->get(SexRepository::class)->find(1);
-        $Payment = $this->container->get(PaymentRepository::class)->find(1);
-        $OrderStatus = $this->container->get(OrderStatusRepository::class)->find(OrderStatus::NEW);
+        $this->deleteAllRows(array('dtb_shipping'));
         for ($i = 0; $i < 10; $i++) {
-            $Customer = $this->createCustomer('user-' . $i . '@example.com');
-            $Customer->setSex($Sex);
-            $Order = $this->createOrder($Customer);
-            $Order->setOrderStatus($OrderStatus);
-            $Order->setPayment($Payment);
-            $this->entityManager->flush();
-        }
-
-        // sqlite では CsvType が生成されないので、ここで作る
-        $OrderCsvType = $this->container->get(CsvTypeRepository::class)->find(3);
-        if (!is_object($OrderCsvType)) {
-            $OrderCsvType = new CsvType();
-            $OrderCsvType->setId(3);
-            $OrderCsvType->setName('受注CSV');
-            $OrderCsvType->setSortNo(4);
-            $this->entityManager->persist($OrderCsvType);
-            $this->entityManager->flush();
-        }
-        $ShipCsvType = $this->container->get(CsvTypeRepository::class)->find(4);
-        if (!is_object($ShipCsvType)) {
-            $ShipCsvType = new CsvType();
-            $ShipCsvType->setId(4);
-            $ShipCsvType->setName('配送CSV');
-            $ShipCsvType->setSortNo(5);
-            $this->entityManager->persist($ShipCsvType);
+            $shipping = new Shipping();
+            $shipping->setName01('Name');
+            $shipping->setName02('Test');
+            $shipping->setKana01('セ');
+            $shipping->setKana02('イ');
+            $shipping->setZip01('111');
+            $shipping->setZip02('2222');
+            $shipping->setPref($Pref);
+            $shipping->setAddr01('1111');
+            $shipping->setAddr02('2222');
+            $shipping->setTel01('1111');
+            $shipping->setTel02('2222');
+            $shipping->setTel03('3333');
+            $shipping->setDelivery($Delivery);
+            $this->entityManager->persist($shipping);
             $this->entityManager->flush();
         }
     }
@@ -153,34 +137,23 @@ class ShippingControllerTest extends AbstractAdminWebTestCase
 
     public function testExportShipping()
     {
-        // 受注件数を11件にしておく
-        $Order = $this->createOrder($this->createCustomer('dummy-user@example.com'));
-        $OrderStatus = $this->container->get(OrderStatusRepository::class)->find(OrderStatus::NEW);
-        $Order->setOrderStatus($OrderStatus);
-        $this->entityManager->flush();
-
+        $this->markTestIncomplete('Still not implement export csv.');
         // 10件ヒットするはずの検索条件
         $crawler = $this->client->request(
             'POST',
-            $this->generateUrl('admin_order'),
+            $this->generateUrl('admin_shipping'),
             array(
-                'admin_search_order' => array(
+                'admin_search_shipping' => array(
                     '_token' => 'dummy',
-                    'email' => 'user-'
                 )
             )
         );
         $this->assertTrue($this->client->getResponse()->isSuccessful());
-        $this->expected = '検索結果：10件が該当しました';
-        $this->actual = $crawler->filter('#search_form #search_total_count')->text();
+        $this->expected = '検索結果 : 10 件が該当しました';
+        $this->actual = $crawler->filter('#search_form .c-outsideBlock__contents.mb-3 span')->text();
         $this->verify();
 
-        $this->expectOutputRegex('/user-[0-9]@example.com/', 'user-[0-9]@example.com が含まれる CSV が出力されるか');
-
-        $this->client->request(
-            'GET',
-            $this->generateUrl('admin_order_export_shipping')
-        );
+        // TODO: Implement export csv
     }
 
     public function testMarkAsShipped()
