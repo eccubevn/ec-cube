@@ -24,10 +24,10 @@
 
 namespace Eccube\Form\Type\Admin;
 
+use Eccube\Form\Type\DateTimeLocalType;
 use Eccube\Form\Type\Master\RoundingTypeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -59,7 +59,7 @@ class TaxRuleType extends AbstractType
                 'required' => true,
                 'constraints' => array(
                     new Assert\NotBlank(),
-                    new Assert\Range(array('min' => 0, 'max' => 100)),
+                    new Assert\Range(array('min' => 0)),
                     new Assert\Regex(array(
                         'pattern' => "/^\d+(\.\d+)?$/u",
                         'message' => 'form.type.float.invalid'
@@ -69,18 +69,19 @@ class TaxRuleType extends AbstractType
             ->add('rounding_type', RoundingTypeType::class, array(
                 'required' => true,
             ))
-            ->add('apply_date', DateType::class, array(
+            ->add('apply_date', DateTimeLocalType::class, array(
                 'required' => true,
+                'html5' => true,
                 'input' => 'datetime',
                 'widget' => 'single_text',
-                'format' => 'yyyy-MM-dd',
+                'format' => DateTimeLocalType::HTML5_FORMAT,
                 'years' => range(date('Y'), date('Y') + 2),
                 'placeholder' => array(
                     'year' => '----',
                     'month' => '--',
                     'day' => '--',
-//                    'hours' => '--',
-//                    'minutes' => '--'
+                    'hours' => '--',
+                    'minutes' => '--'
                 ),
                 'constraints' => array(
                     new Assert\NotBlank(),

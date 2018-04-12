@@ -117,6 +117,7 @@ class TaxRuleController extends AbstractController
         if ($mode != 'edit_inline') {
             $form->handleRequest($request);
             if ($form->isSubmitted() && $this->isValid($form)) {
+                dump($TargetTaxRule);
                 $this->entityManager->persist($TargetTaxRule);
                 $this->entityManager->flush();
 
@@ -263,6 +264,7 @@ class TaxRuleController extends AbstractController
         if (!$form->isValid()) {
             return false;
         }
+
         /**
          * 同一日時のエラーチェック.
          */
@@ -270,6 +272,7 @@ class TaxRuleController extends AbstractController
         $TargetTaxRule = $form->getData();
         $parameters = array();
         $parameters['apply_date'] = $TargetTaxRule->getApplyDate();
+        dump($TargetTaxRule->getApplyDate());
         $qb = $this->entityManager
             ->getRepository('Eccube\Entity\TaxRule')
             ->createQueryBuilder('t')
@@ -281,10 +284,12 @@ class TaxRuleController extends AbstractController
             $parameters['id'] = $TargetTaxRule->getId();
         }
         $qb->setParameters($parameters);
+
         $count = $qb
             ->getQuery()
             ->getSingleScalarResult();
         // 同じ適用日時の登録データがあればエラーとする.
+        dump($count);
         if ($count > 0) {
             $form['apply_date']->addError(new FormError(trans('taxrule.text.error.date_not_available')));
 
