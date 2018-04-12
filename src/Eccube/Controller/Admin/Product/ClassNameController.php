@@ -87,34 +87,70 @@ class ClassNameController extends AbstractController
 
         $form = $builder->getForm();
 
-        if ($request->getMethod() === 'POST') {
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-                log_info('商品規格登録開始', array($id));
+        $mode = $request->get('mode');
+        if ($mode != 'edit_inline') {
+            if ($request->getMethod() === 'POST') {
+                $form->handleRequest($request);
+                if ($form->isValid()) {
+                    log_info('商品規格登録開始', array($id));
 
-                $this->classNameRepository->save($TargetClassName);
+                    $this->classNameRepository->save($TargetClassName);
 
-                log_info('商品規格登録完了', array($id));
+                    log_info('商品規格登録完了', array($id));
 
-                $event = new EventArgs(
-                    array(
-                        'form' => $form,
-                        'TargetClassName' => $TargetClassName,
-                    ),
-                    $request
-                );
-                $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CLASS_NAME_INDEX_COMPLETE, $event);
+                    $event = new EventArgs(
+                        array(
+                            'form' => $form,
+                            'TargetClassName' => $TargetClassName,
+                        ),
+                        $request
+                    );
+                    $this->eventDispatcher->dispatch(EccubeEvents::ADMIN_PRODUCT_CLASS_NAME_INDEX_COMPLETE, $event);
 
-                $this->addSuccess('admin.class_name.save.complete', 'admin');
-                return $this->redirectToRoute('admin_product_class_name');
+                    $this->addSuccess('admin.class_name.save.complete', 'admin');
+                    return $this->redirectToRoute('admin_product_class_name');
+                }
             }
         }
         $ClassNames = $this->classNameRepository->getList();
+
+        // edit class name form
+        $forms = array();
+        $errors = array();
+        /** @var ClassName $ClassName */
+        foreach ($ClassNames as $ClassName) {
+            /* @var $builder \Symfony\Component\Form\FormBuilderInterface */
+            $builder = $this->formFactory->createBuilder(ClassNameType::class, $ClassName);
+            $editClassName = $builder->getForm();
+            // error number
+            $error = 0;
+            if ($mode == 'edit_inline'
+                && $request->getMethod() === 'POST'
+                && (string)$ClassName->getId() === $request->get('class_name_id')
+            ) {
+                $editClassName->handleRequest($request);
+                if ($editClassName->isValid()) {
+                    $className = $editClassName->getData();
+
+                    $this->entityManager->persist($className);
+                    $this->entityManager->flush();
+
+                    $this->addSuccess('admin.class_name.save.complete', 'admin');
+                    return $this->redirectToRoute('admin_product_class_name');
+                }
+                $error = count($editClassName->getErrors(true));
+            }
+
+            $forms[$ClassName->getId()] = $editClassName->createView();
+            $errors[$ClassName->getId()] = $error;
+        }
 
         return [
             'form' => $form->createView(),
             'ClassNames' => $ClassNames,
             'TargetClassName' => $TargetClassName,
+            'forms' => $forms,
+            'errors' => $errors
         ];
     }
 

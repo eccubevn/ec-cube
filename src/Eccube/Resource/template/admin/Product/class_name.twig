@@ -28,6 +28,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 {% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
 
+{% block stylesheet %}
+    <style type="text/css">
+        .edit {
+            display: none;
+        }
+        .has-error .list {
+            display: none;
+        }
+        .has-error .edit {
+            display: block;
+        }
+    </style>
+{% endblock stylesheet %}
+
 {% block javascript %}
     <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.core.min.js', 'admin') }}"></script>
     <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.widget.min.js', 'admin') }}"></script>
@@ -70,7 +84,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     $("a.up.disabled").removeClass('disabled');
                     $("a.down.disabled").removeClass('disabled');
                     // First element
-                    $("ul.tableish > li:nth-child(2) > div > div.col-auto.text-right > a.up").addClass('disabled');
+                    $("ul.tableish > li:nth-child(2) div.col-auto.text-right.action > a.up").addClass('disabled');
                     // Last element
                     $("ul.tableish > li").last().find("a.down").addClass('disabled');
                     $(".modal-backdrop").remove();
@@ -93,6 +107,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 current.next().after(current);
                 $("body").append($('<div class="modal-backdrop show"></div>'));
                 updateSortNo();
+            });
+
+            // Edit inline click
+            $("li.item_box .action a.edit-button").click(function() {
+                var id = $(this).data('id');
+                var row = $("#class_name_list_item--" + id);
+                $(row).find(".list").hide();
+                $(row).find(".edit").show();
+            });
+
+            // edit inline cancel
+            $('li.item_box .cancel').click(function() {
+                var id = $(this).data('id');
+                var row = $("#class_name_list_item--" + id);
+                $(row).find(".edit").hide();
+                $(row).find(".list").show();
             });
         });
     </script>
@@ -125,20 +155,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                     </form>
                                 </li>
                                 {% for ClassName in ClassNames %}
-                                <li class="list-group-item item_box" data-class-name-id="{{ ClassName.id }}" data-sort-no="{{ ClassName.sortNo }}">
+                                <li class="list-group-item item_box {% if errors[ClassName.id] %}has-error{%  endif %}" data-class-name-id="{{ ClassName.id }}" data-sort-no="{{ ClassName.sortNo }}" id="class_name_list_item--{{ ClassName.id }}">
+                                    <form name="edit-form" role="form" class="form-horizontal" id="edit-form_{{ ClassName.id }}" method="post" action="{{ url('admin_product_class_name_edit', {'id': ClassName.id}) }}">
+                                        {{ form_widget(forms[ClassName.id]._token) }}
+                                        <input type="hidden" value="{{ ClassName.id }}" name="class_name_id">
+                                        <input type="hidden" value="edit_inline" name="mode"/>
+
                                     <div class="row justify-content-around">
                                         <div class="col-auto d-flex align-items-center"><i class="fa fa-bars text-ec-gray"></i></div>
                                         {# TODO 表示名 #}
-                                        <div class="col d-flex align-items-center"><a href="{{ url('admin_product_class_category', {class_name_id : ClassName.id }) }}">{{ ClassName.name }} ({{ ClassName.ClassCategories|length }})</a></div>
-                                        <div class="col-auto text-right">
+                                        <div class="col d-flex align-items-center">
+                                            <div class="edit">
+                                                {{ form_widget(forms[ClassName.id].name) }}
+                                                {{ form_errors(forms[ClassName.id].name) }}
+                                            </div>
+                                            <div class="list">
+                                            <a href="{{ url('admin_product_class_category', {class_name_id : ClassName.id }) }}">{{ ClassName.name }} ({{ ClassName.ClassCategories|length }})</a>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <div class="edit">
+                                            <button class="btn btn-ec-conversion" type="submit">{{ 'admin.product.class_name.edit.decision'|trans }}</button>
+                                            <button class="btn btn-ec-sub cancel" type="button" data-id="{{ ClassName.id }}">{{ 'admin.product.class_name.edit.cancel'|trans }}</button>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto text-right action">
                                             <a class="btn btn-ec-actionIcon mr-3 up {% if loop.first %}disabled{% endif %}" href="" data-toggle="tooltip" data-placement="top" title="{{ 'admin.product.class_name.439'|trans }}">
                                                 <i class="fa fa-arrow-up fa-lg text-secondary"></i>
                                             </a>
                                             <a class="btn btn-ec-actionIcon mr-3 down {% if loop.last %}disabled{% endif %}" href="" data-toggle="tooltip" data-placement="top" title="{{ 'admin.product.class_name.440'|trans }}">
                                                 <i class="fa fa-arrow-down fa-lg text-secondary"></i>
                                             </a>
-                                            {# TODO 編集機能 #}
-                                            <a class="btn btn-ec-actionIcon mr-3" href="" data-toggle="tooltip" data-placement="top" title="{{ 'admin.product.class_name.441'|trans }}">
+                                            <a class="btn btn-ec-actionIcon mr-3 edit-button" data-id="{{ ClassName.id }}" data-toggle="tooltip" data-placement="top" title="{{ 'admin.product.class_name.441'|trans }}">
                                                 <i class="fa fa-pencil fa-lg text-secondary"></i>
                                             </a>
                                             <a class="btn btn-ec-actionIcon mr-3 {% if ClassName.ClassCategories|length > 0 %}disabled{% endif %}" href="{{ url('admin_product_class_name_delete', {id: ClassName.id}) }}" {{ csrf_token_for_anchor() }} data-method="delete" data-toggle="tooltip" data-placement="top" title="{{ 'common.label.delete'|trans }}">
@@ -146,6 +194,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                             </a>
                                         </div>
                                     </div>
+                                    </form>
                                 </li>
                                 {% endfor %}
                                 {# TODO 編集フォーム #}
