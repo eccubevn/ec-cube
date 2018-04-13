@@ -146,7 +146,6 @@ class ClassNameControllerTest extends AbstractAdminWebTestCase
         $this->entityManager->flush();
 
         $id = $TestClassName->getId();
-
         // main
         $className = 'Test 1';
         $this->client->request('POST',
@@ -157,12 +156,11 @@ class ClassNameControllerTest extends AbstractAdminWebTestCase
                     Constant::TOKEN_NAME => 'dummy',
                 ),
                 'mode' => 'edit_inline',
-                'class_name_id' => $id,
+                'class_name_id' => "$id",
             )
         );
         $crawler = $this->client->followRedirect();
-        $this->assertTrue($this->client->getResponse()->isSuccessful());
-        
+
         $actual = $crawler->filter('#class_name_list_item--' . $id)->html();
         $this->assertContains($className, $actual);
         $this->assertContains('規格を保存しました。',
