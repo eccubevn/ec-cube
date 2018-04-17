@@ -51,9 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 $.ajax({
                     url: '{{ url('admin_setting_shop_delivery_sort_no_move') }}',
                     type: 'POST',
-                    headers: {
-                        'x-csrf-token': $('meta[name="x-csrf-token"]').attr('content')
-                    },
                     data: newSortNos
                 }).always(function () {
                     $(".modal-backdrop").remove();
@@ -71,7 +68,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 $('body').append($('<div class="modal-backdrop show"></div>'));
                 updateSortNo();
                 redrawDisableAllows();
-            }
+            };
             // Drag and Drop
             $(".sortable-container").sortable({
                 items: '> .sortable-item',
