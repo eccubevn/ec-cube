@@ -12,6 +12,7 @@ parameters:
     env(ECCUBE_GC_MAXLIFETIME): 1440
 
     # EC-CUBE parameter
+    eccube_http_cache_esi: '%env(bool:ECCUBE_HTTP_CACHE_ESI)%'
     eccube_database_url: '%env(DATABASE_URL)%'
     eccube_mailer_url: '%env(MAILER_URL)%'
     eccube_admin_route: '%env(ECCUBE_ADMIN_ROUTE)%'
