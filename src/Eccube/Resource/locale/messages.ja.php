@@ -202,6 +202,8 @@ return [
     'signup.label.name_kana' => 'お名前(フリガナ)',
     'signup.label.family_name_kana' => 'セイ',
     'signup.label.first_name_kana' => '',
+    'signup.label.last_name' => '姓',
+    'signup.label.last_name_kana' => 'メイ',
     'signup.label.company_name' => '会社名',
     'signup.label.address' => '住所',
     'signup.label.postal_code' => '郵便番号',
