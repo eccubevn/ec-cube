@@ -236,8 +236,13 @@ Styleguide 3.1.5
   }
   span{
     display: inline-block;
-    padding: 0 5px 0 3px;
-    margin-left:5px;
+    padding: 0 5px 0 5px;
+    margin: 0 3px;
+  }
+  span:first-of-type {
+    display: inline-block;
+    padding: 0 5px 0 0;
+    margin-left: 0;
   }
 }
 
