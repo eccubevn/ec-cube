@@ -262,7 +262,6 @@ file that was distributed with this source code.
                                                         {{ form_widget(forms[Category.id].name, {'attr': {'data-origin-value': forms[Category.id].name.vars.value}}) }}
                                                         {{ form_errors(forms[Category.id].name) }}
                                                     </div>
-
                                                     {% for f in forms[Category.id].getIterator %}
                                                         {% if f.vars.name matches '[^plg*]' %}
                                                             <div class="col-auto">
