@@ -51,4 +51,10 @@ file that was distributed with this source code.
     </label>
 {%- endblock radio_widget -%}
 
+{%- block checkbox_widget -%}
+    <label for="{{ id }}">{{ parent() }}
+        <span>{{ label is not same as(false) ? (translation_domain is same as(false) ? label : label|trans({}, translation_domain)) }}</span>
+    </label>
+{%- endblock checkbox_widget -%}
+
 
