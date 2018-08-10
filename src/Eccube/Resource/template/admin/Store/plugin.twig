@@ -34,7 +34,7 @@ file that was distributed with this source code.
                     <div class="card-header">
                         <a href="{{ url('admin_store_plugin_owners_search') }}"
                            class="btn btn-ec-regular mr-2 pull-right">{{ 'admin.store.plugin.811'|trans }}</a>
-                        <h5 class="box-title mb-3">{{ 'admin.store.plugin.812'|trans }}</h5>
+                        <span class="card-title mb-3">{{ 'admin.store.plugin.812'|trans }}</span>
                     </div>
                     {{ include('@admin/Store/plugin_table_official.twig', {'Plugins': officialPlugins}) }}
 
@@ -44,7 +44,7 @@ file that was distributed with this source code.
                     <div class="card-header">
                         <a href="{{ url('admin_store_plugin_install') }}"
                            class="btn btn-ec-regular mr-2 pull-right">{{ 'admin.store.plugin.813'|trans }}</a>
-                        <h5 class="box-title mb-3">{{ 'admin.store.plugin.814'|trans }}</h5>
+                        <span class="card-title mb-3">{{ 'admin.store.plugin.814'|trans }}</span>
                     </div>
                     {{ include('@admin/Store/plugin_table.twig', {'Plugins': unofficialPlugins}) }}
                 </div>
