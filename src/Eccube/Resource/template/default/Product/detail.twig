@@ -149,12 +149,19 @@ file that was distributed with this source code.
             if ($('#quantity').val() < 1) {
                 $('#quantity')[0].setCustomValidity('{{ 'form.type.add.quantity'|trans }}');
                 return true;
+            }  else if ($('#quantity').attr('maxlength') && $('#quantity').val().length > $('#quantity').attr('maxlength')) {
+                $('#quantity')[0].setCustomValidity("{{ 'form.type.add.quantity.limit_length'|trans }}".replace("%limit%", $('#quantity').attr('maxlength')))
             } else {
                 $('#quantity')[0].setCustomValidity('');
             }
-
-            event.preventDefault();
             $form = $('#form1');
+
+            if ($form[0].checkValidity()) {
+                e.preventDefault();
+            } else {
+                return true;
+            }
+
             $.ajax({
                 url: $form.attr('action'),
                 type: $form.attr('method'),

@@ -41,16 +41,23 @@ file that was distributed with this source code.
 
 
         $('.add-cart').on('click', function(e) {
-            e.preventDefault();
             var $form = $(this).parents('li').find('form');
 
             // 個数フォームのチェック
             var $quantity = $form.parent().find('.quantity');
             if ($quantity.val() < 1) {
-                $quantity[0].setCustomValidity("1以上で入力してください。");
+                $quantity[0].setCustomValidity("{{ 'form.type.add.quantity'|trans }}");
                 return true;
+            } else if ($quantity.attr('maxlength') && $quantity.val().length > $quantity.attr('maxlength')) {
+                $quantity[0].setCustomValidity("{{ 'form.type.add.quantity.limit_length'|trans }}".replace("%limit%", $quantity.attr('maxlength')))
             } else {
                 $quantity[0].setCustomValidity("");
+            }
+
+            if ($form[0].checkValidity()) {
+                e.preventDefault();
+            } else {
+                return true;
             }
 
             $.ajax({
@@ -84,6 +91,8 @@ file that was distributed with this source code.
                 // Buttonを有効にする
                 $('.add-cart').prop('disabled', false);
             });
+
+
         });
     </script>
 {% endblock %}
@@ -192,12 +201,12 @@ file that was distributed with this source code.
                                         </div>
                                     </div>
                                     {{ form_rest(form) }}
+                                    <div class="ec-productRole__btn">
+                                        <button type="submit" class="ec-blockBtn--action add-cart" data-cartid="{{ Product.id }}" form="productForm{{ Product.id }}">
+                                            {{ 'common.label.add_cart'|trans }}
+                                        </button>
+                                    </div>
                                 </form>
-                                <div class="ec-productRole__btn">
-                                    <button type="submit" class="ec-blockBtn--action add-cart" data-cartid="{{ Product.id }}" form="productForm{{ Product.id }}">
-                                        {{ 'common.label.add_cart'|trans }}
-                                    </button>
-                                </div>
                             {% else %}
                                 <div class="ec-productRole__btn">
                                     <button type="button" class="ec-blockBtn--action" disabled="disabled">

@@ -491,6 +491,7 @@ return [
     'form.type.select.notselect' => '入力されていません。',
     'form.type.select.classcategory' => '項目が選択されていません。',
     'form.type.add.quantity' => '1以上で入力してください。',
+    'form.type.add.quantity.limit_length' => '値が長すぎます。%limit% 文字以内でなければなりません。',
     'form.type.select.selectis_future_or_now_date' => '生年月日が不正な日付です。',
     'form.type.admin.nottrackingnumberstyle' => '送り状番号は半角英数字かハイフンのみを入力してください。',
     'cart.over.stock' => '選択された商品(%product%)の在庫が不足しております。

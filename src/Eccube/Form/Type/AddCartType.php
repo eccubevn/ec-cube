@@ -31,6 +31,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContext;
+use Eccube\Common\EccubeConfig;
 
 class AddCartType extends AbstractType
 {
@@ -56,8 +57,16 @@ class AddCartType extends AbstractType
 
     protected $doctrine;
 
-    public function __construct(ManagerRegistry $doctrine)
-    {
+    /**
+     * AddCartType constructor.
+     * @param ManagerRegistry $doctrine
+     * @param EccubeConfig $eccubeConfig
+     */
+    public function __construct(
+        ManagerRegistry $doctrine,
+        EccubeConfig $eccubeConfig
+    ) {
+        $this->config = $eccubeConfig;
         $this->doctrine = $doctrine;
     }
 
