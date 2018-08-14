@@ -30,10 +30,10 @@ file that was distributed with this source code.
                         <p>{{'mypage.message.favorite_results'|trans({'%count%':pagination.totalItemCount})|raw}}</p>
                     </div>
                     <div class="ec-favoriteRole__detail">
-                        <ul class="ec-favoriteRole__itemList">
+                        <div class="ec-favoriteRole__itemList row">
                             {% for FavoriteProduct in pagination %}
                                 {% set Product = FavoriteProduct.Product %}
-                                <li class="ec-favoriteRole__item">
+                                <div class="ec-favoriteRole__item col-xs-6 col-sm-3">
                                     <a class="ec-closeBtn--circle" href="{{ url('mypage_favorite_delete', { id : Product.id }) }}" {{ csrf_token_for_anchor() }} data-method="delete">
                                         <div class="ec-icon">
                                             <img src="{{ asset('assets/icon/cross-white.svg') }}" alt="close">
@@ -52,9 +52,9 @@ file that was distributed with this source code.
                                             {{ Product.price02_inc_tax_min|price }}～{{ Product.price02_inc_tax_max|price }}
                                         {% endif %}
                                     </p>
-                                </li>
+                                </div>
                             {% endfor %}
-                        </ul>
+                        </div>
                     </div>
                     <div class="ec-pagerRole">
                         {% include "pager.twig" with {'pages': pagination.paginationData} %}
