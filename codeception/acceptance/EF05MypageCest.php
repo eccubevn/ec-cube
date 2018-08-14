@@ -97,10 +97,10 @@ class EF05MypageCest
         ProductDetailPage::go($I, 2)->お気に入りに追加();
 
         MyPage::go($I)->お気に入り一覧();
-        $I->see('パーコレーター', 'ul.ec-favoriteRole__itemList li:nth-child(1) p.ec-favoriteRole__itemTitle');
+        $I->see('パーコレーター', 'div.ec-favoriteRole__itemList div:nth-child(1) p.ec-favoriteRole__itemTitle');
 
         // お気に入りを削除
-        $I->click('ul.ec-favoriteRole__itemList li:nth-child(1) a.ec-closeBtn--circle');
+        $I->click('div.ec-favoriteRole__itemList div:nth-child(1) a.ec-closeBtn--circle');
         $I->acceptPopup();
     }
 
