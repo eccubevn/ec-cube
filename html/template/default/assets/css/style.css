@@ -5037,11 +5037,17 @@ Styleguide 11.2.5
   top: 100%;
   left: 0; }
 
-.ec-itemNav__nav li ul li {
+ .ec-itemNav__nav li ul li {
   overflow: hidden;
   width: 100%;
   height: auto;
-  transition: .3s; }
+  transition: .3s;
+}
+@media only screen and (min-width: 768px) {
+  .ec-itemNav .ec-itemNav__nav li ul li {
+    overflow: hidden;
+  }
+}
 
 .ec-itemNav__nav li ul li a {
   padding: 16px;
