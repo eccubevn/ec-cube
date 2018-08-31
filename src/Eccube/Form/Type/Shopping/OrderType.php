@@ -252,6 +252,9 @@ class OrderType extends AbstractType
                     $PaymentsByDeliveries[$Delivery->getId()][] = $Payment;
                 }
             }
+            usort($PaymentsByDeliveries[$Delivery->getId()], function ($Payment1, $Payment2) {
+                return $Payment1->getSortNo() < $Payment2->getSortNo();
+            });
         }
 
         if (empty($PaymentsByDeliveries)) {
