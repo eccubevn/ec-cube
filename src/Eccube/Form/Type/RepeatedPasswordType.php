@@ -49,7 +49,7 @@ class RepeatedPasswordType extends AbstractType
             'entry_type' => TextType::class, // type password だと入力欄を空にされてしまうので、widgetで対応
             'required' => true,
             'error_bubbling' => false,
-            'invalid_message' => 'form.member.password.invalid',
+            'invalid_message' => 'form.type.customer.password.invalid',
             'options' => [
                 'constraints' => [
                     new Assert\NotBlank(),
