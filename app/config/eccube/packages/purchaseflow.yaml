@@ -10,6 +10,7 @@ services:
             - [setItemHolderValidators, ['@eccube.purchase.flow.cart.holder_validators']]
             - [setItemPreprocessors, ['@eccube.purchase.flow.cart.item_preprocessors']]
             - [setItemHolderPreprocessors, ['@eccube.purchase.flow.cart.holder_preprocessors']]
+            - [setDiscountProcessors, ['@eccube.purchase.flow.shopping.discount_processors']]
             - [setItemHolderPostValidators, ['@eccube.purchase.flow.cart.holder_post_validators']]
 
     eccube.purchase.flow.cart.item_validators:
